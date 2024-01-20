@@ -13,6 +13,7 @@ import com.datastrato.gravitino.catalog.CatalogOperations;
 import com.datastrato.gravitino.catalog.PropertiesMetadata;
 import com.datastrato.gravitino.exceptions.FilesetAlreadyExistsException;
 import com.datastrato.gravitino.exceptions.NoSuchCatalogException;
+import com.datastrato.gravitino.exceptions.NoSuchEntityException;
 import com.datastrato.gravitino.exceptions.NoSuchFilesetException;
 import com.datastrato.gravitino.exceptions.NoSuchSchemaException;
 import com.datastrato.gravitino.exceptions.NonEmptySchemaException;
@@ -21,6 +22,7 @@ import com.datastrato.gravitino.file.Fileset;
 import com.datastrato.gravitino.file.FilesetCatalog;
 import com.datastrato.gravitino.file.FilesetChange;
 import com.datastrato.gravitino.meta.CatalogEntity;
+import com.datastrato.gravitino.meta.FilesetEntity;
 import com.datastrato.gravitino.meta.SchemaEntity;
 import com.datastrato.gravitino.rel.Schema;
 import com.datastrato.gravitino.rel.SchemaChange;
@@ -29,6 +31,8 @@ import com.datastrato.gravitino.storage.IdGenerator;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import org.apache.hadoop.fs.Path;
 
 public class HadoopCatalogOperations implements CatalogOperations, SupportsSchemas, FilesetCatalog {
 
@@ -62,12 +66,33 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
 
   @Override
   public NameIdentifier[] listFilesets(Namespace namespace) throws NoSuchSchemaException {
-    throw new UnsupportedOperationException();
+    try {
+      List<FilesetEntity> filesets = store.list(namespace, FilesetEntity.class, Entity.EntityType.FILESET);
+      return filesets.stream()
+          .map(fileset -> NameIdentifier.of(namespace, fileset.name()))
+          .toArray(NameIdentifier[]::new);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Failed to list filesets under namespace " + namespace, ioe);
+    }
   }
 
   @Override
   public Fileset loadFileset(NameIdentifier ident) throws NoSuchFilesetException {
-    throw new UnsupportedOperationException();
+    try {
+      FilesetEntity filesetEntity = store.get(ident, Entity.EntityType.FILESET, FilesetEntity.class);
+      return new HadoopFileset.Builder()
+          .withName(filesetEntity.name())
+          .withComment(filesetEntity.comment())
+          .withAuditInfo(filesetEntity.auditInfo())
+          .withProperties(filesetEntity.properties())
+          .withType(filesetEntity.filesetType())
+          .withStorageLocation(filesetEntity.storageLocation())
+          .build();
+    } catch (NoSuchFilesetException e) {
+      throw new NoSuchFilesetException("Fileset " + ident.name() + "does not exist", e);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Failed to load fileset " + ident.name(), ioe);
+    }
   }
 
   @Override
@@ -78,18 +103,70 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
       String storageLocation,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
-    throw new UnsupportedOperationException();
+    NameIdentifier schemaIdent = NameIdentifier.of(ident.namespace().levels());
+    try {
+      if (!schemaExists(schemaIdent)) {
+        throw new NoSuchSchemaException("Fileset schema does not exist " + schemaIdent);
+      }
+
+      if (store.exists(ident, Entity.EntityType.FILESET)) {
+        throw new FilesetAlreadyExistsException("Fileset " + ident.name() + "already exists");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Failed to check if the fileset " + ident.name() + " exists", ioe);
+    }
+
+    Optional.of(storageLocation)
+        .map(Path::new)
+        .orElse();
+    String schemaLocation =
+        (String)
+            SCHEMA_PROPERTIES_METADATA.getOrDefault(
+                properties, HadoopSchemaPropertiesMetadata.LOCATION);
+    Optional.ofNullable(schemaLocation)
+        .map(Path::new)
+        .orElse();
+
+
+    return null;
   }
 
   @Override
   public Fileset alterFileset(NameIdentifier ident, FilesetChange... changes)
       throws NoSuchFilesetException, IllegalArgumentException {
-    throw new UnsupportedOperationException();
+    try {
+      if (!store.exists(ident, Entity.EntityType.FILESET)) {
+        throw new NoSuchFilesetException("Fileset " + ident.name() + "does not exist");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Failed to alter fileset " + ident.name(), ioe);
+    }
+
+    try {
+      FilesetEntity updated = store.update(
+          ident,
+          FilesetEntity.class,
+          Entity.EntityType.FILESET,
+          filesetEntity -> updateFilesetEntity(ident, filesetEntity, changes));
+      return new HadoopFileset.Builder()
+          .withName(updated.name())
+          .withStorageLocation(updated.storageLocation())
+          .withType(updated.filesetType())
+          .withProperties(updated.properties())
+          .withAuditInfo(updated.auditInfo())
+          .withComment(updated.comment())
+          .build();
+    } catch (NoSuchEntityException nsee) {
+      throw new NoSuchEntityException("No such fileset " + ident.name(), nsee);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Failed to alter fileset " + ident.name(), ioe);
+    }
   }
+
 
   @Override
   public boolean dropFileset(NameIdentifier ident) {
-    throw new UnsupportedOperationException();
+
   }
 
   @Override
@@ -150,4 +227,9 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
 
   @Override
   public void close() throws IOException {}
+
+  private FilesetEntity updateFilesetEntity(NameIdentifier ident, FilesetEntity filesetEntity,
+      FilesetChange... changes) {
+    return null;
+  }
 }
