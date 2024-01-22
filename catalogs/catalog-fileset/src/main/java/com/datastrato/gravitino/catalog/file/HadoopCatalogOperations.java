@@ -21,6 +21,7 @@ import com.datastrato.gravitino.exceptions.SchemaAlreadyExistsException;
 import com.datastrato.gravitino.file.Fileset;
 import com.datastrato.gravitino.file.FilesetCatalog;
 import com.datastrato.gravitino.file.FilesetChange;
+import com.datastrato.gravitino.meta.AuditInfo;
 import com.datastrato.gravitino.meta.CatalogEntity;
 import com.datastrato.gravitino.meta.FilesetEntity;
 import com.datastrato.gravitino.meta.SchemaEntity;
@@ -29,9 +30,13 @@ import com.datastrato.gravitino.rel.SchemaChange;
 import com.datastrato.gravitino.rel.SupportsSchemas;
 import com.datastrato.gravitino.storage.IdGenerator;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import com.datastrato.gravitino.utils.PrincipalUtils;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 public class HadoopCatalogOperations implements CatalogOperations, SupportsSchemas, FilesetCatalog {
@@ -116,18 +121,45 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
       throw new RuntimeException("Failed to check if the fileset " + ident.name() + " exists", ioe);
     }
 
-    Optional.of(storageLocation)
-        .map(Path::new)
-        .orElse();
+    Path filesetLocation = getPath(properties, storageLocation);
+
+    if (filesetLocation != null) {
+        try {
+          // TODO: add hadoop conf
+          FileSystem fs = filesetLocation.getFileSystem(null);
+          if (!fs.exists(filesetLocation)) {
+            fs.create(filesetLocation);
+          }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    HadoopFileset fileset = new HadoopFileset.Builder()
+            .withName(ident.name())
+            .withStorageLocation(filesetLocation.getName())
+            .withProperties(properties)
+            .withType(type)
+            .withAuditInfo(new AuditInfo.Builder()
+                    .withCreator(PrincipalUtils.getCurrentPrincipal().getName())
+                    .withCreateTime(Instant.now())
+                    .build())
+            .build();
+    return null;
+  }
+
+  private Path getPath(Map<String, String> properties, String storageLocation) {
+    if (storageLocation != null) {
+      return new Path(storageLocation);
+    }
+
     String schemaLocation =
-        (String)
-            SCHEMA_PROPERTIES_METADATA.getOrDefault(
-                properties, HadoopSchemaPropertiesMetadata.LOCATION);
-    Optional.ofNullable(schemaLocation)
-        .map(Path::new)
-        .orElse();
-
-
+            (String)
+                    SCHEMA_PROPERTIES_METADATA.getOrDefault(
+                            properties, HadoopSchemaPropertiesMetadata.LOCATION);
+//    Optional.ofNullable(schemaLocation)
+//            .map(Path::new)
+//            .orElse();
     return null;
   }
 
