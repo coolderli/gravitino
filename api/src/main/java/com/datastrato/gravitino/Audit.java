@@ -23,9 +23,17 @@ public interface Audit {
    */
   Instant createTime();
 
-  /** @return The last modifier of the entity. */
+  /**
+   * Return The last modifier of the entity.
+   *
+   * @return The last modifier of the entity.
+   */
   String lastModifier();
 
-  /** @return The last modified time of the entity. */
+  /**
+   * Return The last modified time of the entity.
+   *
+   * @return The last modified time of the entity.
+   */
   Instant lastModifiedTime();
 }

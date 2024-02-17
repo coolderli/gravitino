@@ -10,6 +10,10 @@ package com.datastrato.gravitino;
  */
 public interface Auditable {
 
-  /** @return The audit information of the entity. */
+  /**
+   * Return The audit information of the entity.
+   *
+   * @return The audit information of the entity.
+   */
   Audit auditInfo();
 }

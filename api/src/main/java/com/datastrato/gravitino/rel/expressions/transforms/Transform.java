@@ -31,13 +31,24 @@ import java.util.Objects;
  * The transform name is "date" and its argument is a reference to the "ts" column.
  */
 public interface Transform extends Expression {
-  /** @return The transform function name. */
+  /**
+   * Returns the transform function name.
+   *
+   * @return The transform function name.
+   */
   String name();
 
-  /** @return The arguments passed to the transform function. */
+  /**
+   * Returns the arguments passed to the transform function.
+   *
+   * @return The arguments passed to the transform function.
+   */
   Expression[] arguments();
 
   /**
+   * Returns the preassigned partitions in the partitioning. Currently, only ListTransform and
+   * RangeTransform need to deal with assignments
+   *
    * @return The preassigned partitions in the partitioning. Currently, only ListTransform and
    *     RangeTransform need to deal with assignments
    */
@@ -54,7 +65,11 @@ public interface Transform extends Expression {
   abstract class SingleFieldTransform implements Transform {
     NamedReference ref;
 
-    /** @return the referenced field name as an array of String parts. */
+    /**
+     * Returns the referenced field name as an array of String parts.
+     *
+     * @return the referenced field name as an array of String parts.
+     */
     public String[] fieldName() {
       return ref.fieldName();
     }

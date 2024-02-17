@@ -214,7 +214,8 @@ subprojects {
       options.errorprone.disableAllChecks.set(true)
       options.errorprone.enable(
         "AnnotateFormatMethod",
-        "FormatStringAnnotation"
+        "FormatStringAnnotation",
+        "MissingSummary"
       )
     }
   }

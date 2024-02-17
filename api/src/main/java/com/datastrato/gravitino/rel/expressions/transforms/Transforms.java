@@ -389,12 +389,20 @@ public class Transforms {
       this.fields = fields;
     }
 
-    /** @return The number of buckets to use. */
+    /**
+     * Returns the number of buckets to use.
+     *
+     * @return The number of buckets to use.
+     */
     public int numBuckets() {
       return numBuckets.value();
     }
 
-    /** @return The field names to transform. */
+    /**
+     * Returns the field names to transform.
+     *
+     * @return The field names to transform.
+     */
     public String[][] fieldNames() {
       return Arrays.stream(fields).map(NamedReference::fieldName).toArray(String[][]::new);
     }
@@ -442,17 +450,29 @@ public class Transforms {
       this.field = field;
     }
 
-    /** @return The width to truncate to. */
+    /**
+     * Returns the width to truncate to.
+     *
+     * @return The width to truncate to.
+     */
     public int width() {
       return width.value();
     }
 
-    /** @return The field name to transform. */
+    /**
+     * Returns the field name to transform.
+     *
+     * @return The field name to transform.
+     */
     public String[] fieldName() {
       return field.fieldName();
     }
 
-    /** @return The name of the transform. */
+    /**
+     * Returns the name of the transform.
+     *
+     * @return The name of the transform.
+     */
     @Override
     public String name() {
       return NAME_OF_TRUNCATE;
@@ -491,7 +511,11 @@ public class Transforms {
       this.fields = fields;
     }
 
-    /** @return The field names to include in the list. */
+    /**
+     * Returns the field names to include in the list.
+     *
+     * @return The field names to include in the list.
+     */
     public String[][] fieldNames() {
       return Arrays.stream(fields).map(NamedReference::fieldName).toArray(String[][]::new);
     }
@@ -542,7 +566,11 @@ public class Transforms {
       this.field = field;
     }
 
-    /** @return The field name to transform. */
+    /**
+     * Returns the field name to transform.
+     *
+     * @return The field name to transform.
+     */
     public String[] fieldName() {
       return field.fieldName();
     }

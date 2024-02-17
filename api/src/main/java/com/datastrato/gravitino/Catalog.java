@@ -38,13 +38,25 @@ public interface Catalog extends Auditable {
    */
   String PROPERTY_PACKAGE = "package";
 
-  /** @return The name of the catalog. */
+  /**
+   * Return the name of the catalog.
+   *
+   * @return The name of the catalog.
+   */
   String name();
 
-  /** @return The type of the catalog. */
+  /**
+   * Return the type of the catalog.
+   *
+   * @return The type of the catalog.
+   */
   Type type();
 
-  /** @return The provider of the catalog. */
+  /**
+   * Return the provider of the catalog.
+   *
+   * @return The provider of the catalog.
+   */
   String provider();
 
   /**
@@ -74,6 +86,8 @@ public interface Catalog extends Auditable {
   }
 
   /**
+   * Return the {@link TableCatalog} if the catalog supports table operations.
+   *
    * @return the {@link TableCatalog} if the catalog supports table operations.
    * @throws UnsupportedOperationException if the catalog does not support table operations.
    */
@@ -82,6 +96,8 @@ public interface Catalog extends Auditable {
   }
 
   /**
+   * Return the {@link FilesetCatalog} if the catalog supports fileset operations.
+   *
    * @return the {@link FilesetCatalog} if the catalog supports fileset operations.
    * @throws UnsupportedOperationException if the catalog does not support fileset operations.
    */

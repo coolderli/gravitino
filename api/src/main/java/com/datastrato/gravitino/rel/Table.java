@@ -24,18 +24,32 @@ import javax.annotation.Nullable;
  */
 public interface Table extends Auditable {
 
-  /** @return Name of the table. */
+  /**
+   * Return the name of the table.
+   *
+   * @return Name of the table.
+   */
   String name();
 
-  /** @return The columns of the table. */
+  /**
+   * Return the schema of the table.
+   *
+   * @return The columns of the table.
+   */
   Column[] columns();
 
-  /** @return The physical partitioning of the table. */
+  /**
+   * Return the partitioning of the table. If no partitioning is specified, an empty array is returned.
+   *
+   * @return The physical partitioning of the table.
+   */
   default Transform[] partitioning() {
     return EMPTY_TRANSFORM;
   }
 
   /**
+   * Return the sort order of the table. If no sort order is specified, an empty array is returned.
+   *
    * @return The sort order of the table. If no sort order is specified, an empty array is returned.
    */
   default SortOrder[] sortOrder() {
@@ -43,6 +57,8 @@ public interface Table extends Auditable {
   }
 
   /**
+   * Return the bucketing of the table. If no bucketing is specified, Distribution.NONE is returned.
+   *
    * @return The bucketing of the table. If no bucketing is specified, Distribution.NONE is
    *     returned.
    */
@@ -51,6 +67,8 @@ public interface Table extends Auditable {
   }
 
   /**
+   * Return the indexes of the table. If no indexes are specified, Indexes.EMPTY_INDEXES is returned.
+   *
    * @return The indexes of the table. If no indexes are specified, Indexes.EMPTY_INDEXES is
    *     returned.
    */
@@ -58,13 +76,21 @@ public interface Table extends Auditable {
     return Indexes.EMPTY_INDEXES;
   }
 
-  /** @return The comment of the table. Null is returned if no comment is set. */
+  /**
+   * Return the comment of the table.
+   *
+   * @return The comment of the table. Null is returned if no comment is set.
+   */
   @Nullable
   default String comment() {
     return null;
   }
 
-  /** @return The properties of the table. Empty map is returned if no properties are set. */
+  /**
+   * Return the properties of the table. Empty map is returned if no properties are set.
+   *
+   * @return The properties of the table. Empty map is returned if no properties are set.
+   */
   default Map<String, String> properties() {
     return Collections.emptyMap();
   }

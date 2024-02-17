@@ -39,16 +39,28 @@ public interface Fileset extends Auditable {
     EXTERNAL
   }
 
-  /** @return Name of the fileset object. */
+  /**
+   * Return the name of the fileset object.
+   *
+   * @return Name of the fileset object.
+   */
   String name();
 
-  /** @return The comment of the fileset object. Null is returned if no comment is set. */
+  /**
+   * Return the comment of the fileset object.
+   *
+   * @return The comment of the fileset object. Null is returned if no comment is set.
+   */
   @Nullable
   default String comment() {
     return null;
   }
 
-  /** @return The type of the fileset object. */
+  /**
+   * Return the type of the fileset object.
+   *
+   * @return The type of the fileset object.
+   */
   Type type();
 
   /**
@@ -84,6 +96,8 @@ public interface Fileset extends Auditable {
   String storageLocation();
 
   /**
+   * Return the properties of the fileset object.
+   *
    * @return The properties of the fileset object. Empty map is returned if no properties are set.
    */
   default Map<String, String> properties() {

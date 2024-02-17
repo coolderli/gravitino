@@ -9,16 +9,27 @@ import java.util.Arrays;
 
 /** An interface that defines how data is distributed across partitions. */
 public interface Distribution extends Expression {
-  /** @return the distribution strategy name. */
+  /**
+   * Returns the distribution strategy name.
+   *
+   * @return the distribution strategy name.
+   */
   Strategy strategy();
 
   /**
+   * Returns the number of buckets/distribution. For example, if the distribution strategy is HASH
+   * and the number is 10, then the data is distributed across 10 buckets.
+   *
    * @return The number of buckets/distribution. For example, if the distribution strategy is HASH
    *     and the number is 10, then the data is distributed across 10 buckets.
    */
   int number();
 
-  /** @return The expressions passed to the distribution function. */
+  /**
+   * Returns the expressions passed to the distribution function.
+   *
+   * @return The expressions passed to the distribution function.
+   */
   Expression[] expressions();
 
   @Override
