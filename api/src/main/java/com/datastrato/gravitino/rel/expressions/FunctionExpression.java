@@ -33,10 +33,18 @@ public interface FunctionExpression extends Expression {
     return of(functionName, Expression.EMPTY_EXPRESSION);
   }
 
-  /** @return The transform function name. */
+  /**
+   * Get the transform function name.
+   *
+   * @return The transform function name.
+   */
   String functionName();
 
-  /** @return The arguments passed to the transform function. */
+  /**
+   * Get the arguments passed to the transform function.
+   *
+   * @return The arguments passed to the transform function.
+   */
   Expression[] arguments();
 
   @Override

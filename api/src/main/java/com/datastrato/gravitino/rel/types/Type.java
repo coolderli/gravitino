@@ -6,10 +6,18 @@ package com.datastrato.gravitino.rel.types;
 
 /** An interface representing all data types supported by Gravitino. */
 public interface Type {
-  /** @return The generic name of the type. */
+  /**
+   * Get the generic name of the type.
+   *
+   * @return The generic name of the type.
+   */
   Name name();
 
-  /** @return A readable string representation for the type. */
+  /**
+   * Get a readable string representation for the type.
+   *
+   * @return A readable string representation for the type.
+   */
   String simpleString();
 
   /** The root type name of this type. */

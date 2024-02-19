@@ -33,10 +33,18 @@ import java.util.Objects;
  */
 @Deprecated
 public interface Literal<T> extends Expression {
-  /** @return The literal value. */
+  /**
+   * Returns the literal value.
+   *
+   * @return The literal value.
+   */
   T value();
 
-  /** @return The data type of the literal. */
+  /**
+   * Returns the data type of the literal.
+   *
+   * @return The data type of the literal.
+   */
   Type dataType();
 
   @Override

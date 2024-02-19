@@ -46,6 +46,8 @@ public class Indexes {
   }
 
   /**
+   * Create an index on columns. Like index (a), for complex like index
+   *
    * @param indexType The type of the index
    * @param name The name of the index
    * @param fieldNames The field names under the table contained in the index.
@@ -90,13 +92,21 @@ public class Indexes {
       return name;
     }
 
-    /** @return The field names under the table contained in the index */
+    /**
+     * Get the field names under the table contained in the index.
+     *
+     * @return The field names under the table contained in the index
+     */
     @Override
     public String[][] fieldNames() {
       return fieldNames;
     }
 
-    /** @return the builder for creating a new instance of IndexImpl. */
+    /**
+     * Returns a builder for creating a new instance of IndexImpl.
+     *
+     * @return the builder for creating a new instance of IndexImpl.
+     */
     public static Builder builder() {
       return new Builder();
     }

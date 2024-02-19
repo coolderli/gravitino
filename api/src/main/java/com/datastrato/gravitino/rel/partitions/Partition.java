@@ -14,9 +14,17 @@ import java.util.Map;
  */
 public interface Partition {
 
-  /** @return The name of the partition. */
+  /**
+   * Get the name of the partition.
+   *
+   * @return The name of the partition.
+   */
   String name();
 
-  /** @return The properties of the partition, such as statistics, location, etc. */
+  /**
+   * Get the properties of the partition, such as statistics, location, etc.
+   *
+   * @return The properties of the partition, such as statistics, location, etc.
+   */
   Map<String, String> properties();
 }

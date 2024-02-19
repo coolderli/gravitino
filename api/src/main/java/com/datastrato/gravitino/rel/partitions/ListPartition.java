@@ -21,6 +21,10 @@ import com.datastrato.gravitino.rel.expressions.literals.Literal;
  */
 public interface ListPartition extends Partition {
 
-  /** @return The values of the list partition. */
+  /**
+   * Returns the field names of the list partition.
+   *
+   * @return The values of the list partition.
+   */
   Literal<?>[][] lists();
 }

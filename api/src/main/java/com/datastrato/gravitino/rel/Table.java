@@ -39,7 +39,8 @@ public interface Table extends Auditable {
   Column[] columns();
 
   /**
-   * Return the partitioning of the table. If no partitioning is specified, an empty array is returned.
+   * Return the partitioning of the table. If no partitioning is specified, an empty array is
+   * returned.
    *
    * @return The physical partitioning of the table.
    */
@@ -67,7 +68,8 @@ public interface Table extends Auditable {
   }
 
   /**
-   * Return the indexes of the table. If no indexes are specified, Indexes.EMPTY_INDEXES is returned.
+   * Return the indexes of the table. If no indexes are specified, Indexes.EMPTY_INDEXES is
+   * returned.
    *
    * @return The indexes of the table. If no indexes are specified, Indexes.EMPTY_INDEXES is
    *     returned.

@@ -13,10 +13,18 @@ import com.datastrato.gravitino.rel.types.Type;
  * @param <T> the JVM type of value held by the literal
  */
 public interface Literal<T> extends Expression {
-  /** @return The literal value. */
+  /**
+   * Get the literal value.
+   *
+   * @return The literal value.
+   */
   T value();
 
-  /** @return The data type of the literal. */
+  /**
+   * Get the data type of the literal.
+   *
+   * @return The data type of the literal.
+   */
   Type dataType();
 
   @Override

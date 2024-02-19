@@ -69,17 +69,29 @@ public class Decimal {
     return of(new BigDecimal(value), precision, scale);
   }
 
-  /** @return The value of the decimal. */
+  /**
+   * Returns the value of the decimal.
+   *
+   * @return The value of the decimal.
+   */
   public BigDecimal value() {
     return value;
   }
 
-  /** @return The precision of the decimal. */
+  /**
+   * Returns the precision of the decimal.
+   *
+   * @return The precision of the decimal.
+   */
   public int precision() {
     return precision;
   }
 
-  /** @return The scale of the decimal. */
+  /**
+   * Returns the scale of the decimal.
+   *
+   * @return The scale of the decimal.
+   */
   public int scale() {
     return scale;
   }

@@ -13,7 +13,11 @@ import java.util.Objects;
  */
 public interface UnparsedExpression extends Expression {
 
-  /** @return The unparsed expression as a string. */
+  /**
+   * Returns the unparsed expression as a string.
+   *
+   * @return The unparsed expression as a string.
+   */
   String unparsedExpression();
 
   @Override

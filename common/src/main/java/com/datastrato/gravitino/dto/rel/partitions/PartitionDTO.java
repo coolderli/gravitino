@@ -14,7 +14,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(using = JsonUtils.PartitionDTODeserializer.class)
 public interface PartitionDTO extends Partition {
 
-  /** @return The type of the partition. */
+  /**
+   * Get the type of the partition.
+   *
+   * @return The type of the partition.
+   */
   Type type();
 
   /** Type of the partition. */

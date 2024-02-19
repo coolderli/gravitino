@@ -17,10 +17,16 @@ import com.datastrato.gravitino.rel.expressions.literals.Literal;
  */
 public interface IdentityPartition extends Partition {
 
-  /** @return The field names of the identity partition. */
+  /**
+   * Returns the field names of the identity partition.
+   *
+   * @return The field names of the identity partition.
+   */
   String[][] fieldNames();
 
   /**
+   * Get the values of the identity partition. The values are in the same order as the field names.
+   *
    * @return The values of the identity partition. The values are in the same order as the field
    *     names.
    */
