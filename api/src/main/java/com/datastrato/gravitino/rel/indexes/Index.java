@@ -11,15 +11,25 @@ package com.datastrato.gravitino.rel.indexes;
  */
 public interface Index {
 
-  /** @return The type of the index. eg: PRIMARY_KEY and UNIQUE_KEY. */
+  /**
+   * Get the type of the index.
+   *
+   * @return The type of the index. eg: PRIMARY_KEY and UNIQUE_KEY.
+   */
   IndexType type();
 
-  /** @return The name of the index. */
+  /**
+   * Get the name of the index.
+   *
+   * @return The name of the index.
+   */
   String name();
 
   /**
-   * @return The field name under the table contained in the index. it is the column names, could be
-   *     "a.b.c" for nested column, but normally it could only be "a".
+   * Get the field name under the table contained in the index. it is the column names, could be
+   * "a.b.c" for nested column, but normally it could only be "a".
+   *
+   * @return The field name under the table contained in the index.
    */
   String[][] fieldNames();
 

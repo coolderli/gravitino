@@ -535,7 +535,11 @@ public interface TableChange {
    */
   interface ColumnPosition {
 
-    /** @return The first position of ColumnPosition instance. */
+    /**
+     * Get the first position of ColumnPosition instance.
+     *
+     * @return The first position of ColumnPosition instance.
+     */
     static ColumnPosition first() {
       return First.INSTANCE;
     }
@@ -550,7 +554,11 @@ public interface TableChange {
       return new After(column);
     }
 
-    /** @return The default position of ColumnPosition instance. */
+    /**
+     * Returns the default position of ColumnPosition instance.
+     *
+     * @return The default position of ColumnPosition instance.
+     */
     static ColumnPosition defaultPos() {
       return Default.INSTANCE;
     }
