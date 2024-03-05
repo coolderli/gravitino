@@ -1,0 +1,98 @@
+# coding: utf-8
+
+# flake8: noqa
+
+# import all models into this package
+# if you have many models here with many references from one model to another this may
+# raise a RecursionError
+# to avoid this, import only the models that you directly need like:
+# from pygravitino.model.pet import Pet
+# or import this package, but before doing it, use:
+# import sys
+# sys.setrecursionlimit(n)
+
+from pygravitino.model.add_partitions_request import AddPartitionsRequest
+from pygravitino.model.add_table_column_request import AddTableColumnRequest
+from pygravitino.model.after_column_position import AfterColumnPosition
+from pygravitino.model.audit import Audit
+from pygravitino.model.bucket_partitioning import BucketPartitioning
+from pygravitino.model.catalog import Catalog
+from pygravitino.model.catalog_create_request import CatalogCreateRequest
+from pygravitino.model.catalog_update_request import CatalogUpdateRequest
+from pygravitino.model.catalog_updates_request import CatalogUpdatesRequest
+from pygravitino.model.column import Column
+from pygravitino.model.column_default_value import ColumnDefaultValue
+from pygravitino.model.column_position import ColumnPosition
+from pygravitino.model.data_type import DataType
+from pygravitino.model.day_partitioning import DayPartitioning
+from pygravitino.model.default_column_position import DefaultColumnPosition
+from pygravitino.model.delete_table_column_request import DeleteTableColumnRequest
+from pygravitino.model.distribution import Distribution
+from pygravitino.model.error_model import ErrorModel
+from pygravitino.model.field import Field
+from pygravitino.model.field_name import FieldName
+from pygravitino.model.field_names import FieldNames
+from pygravitino.model.first_column_position import FirstColumnPosition
+from pygravitino.model.function import Function
+from pygravitino.model.function_arg import FunctionArg
+from pygravitino.model.function_partitioning import FunctionPartitioning
+from pygravitino.model.hour_partitioning import HourPartitioning
+from pygravitino.model.identity_partition import IdentityPartition
+from pygravitino.model.identity_partitioning import IdentityPartitioning
+from pygravitino.model.index_spec import IndexSpec
+from pygravitino.model.list_partition import ListPartition
+from pygravitino.model.list_partitioning import ListPartitioning
+from pygravitino.model.list_type import ListType
+from pygravitino.model.list_value import ListValue
+from pygravitino.model.literal import Literal
+from pygravitino.model.literal1 import Literal1
+from pygravitino.model.map_type import MapType
+from pygravitino.model.metalake import Metalake
+from pygravitino.model.metalake_create_request import MetalakeCreateRequest
+from pygravitino.model.metalake_update_request import MetalakeUpdateRequest
+from pygravitino.model.metalake_updates_request import MetalakeUpdatesRequest
+from pygravitino.model.month_partitioning import MonthPartitioning
+from pygravitino.model.name import Name
+from pygravitino.model.name_identifier import NameIdentifier
+from pygravitino.model.partition_list_response import PartitionListResponse
+from pygravitino.model.partition_name_list_response import PartitionNameListResponse
+from pygravitino.model.partition_spec import PartitionSpec
+from pygravitino.model.partitioning_spec import PartitioningSpec
+from pygravitino.model.primitive_type import PrimitiveType
+from pygravitino.model.properties import Properties
+from pygravitino.model.range_partition import RangePartition
+from pygravitino.model.range_partitioning import RangePartitioning
+from pygravitino.model.remove_catalog_property_request import RemoveCatalogPropertyRequest
+from pygravitino.model.remove_metalake_property_request import RemoveMetalakePropertyRequest
+from pygravitino.model.remove_schema_property_request import RemoveSchemaPropertyRequest
+from pygravitino.model.remove_table_property_request import RemoveTablePropertyRequest
+from pygravitino.model.rename_catalog_request import RenameCatalogRequest
+from pygravitino.model.rename_metalake_request import RenameMetalakeRequest
+from pygravitino.model.rename_table_column_request import RenameTableColumnRequest
+from pygravitino.model.rename_table_request import RenameTableRequest
+from pygravitino.model.schema import Schema
+from pygravitino.model.schema_create_request import SchemaCreateRequest
+from pygravitino.model.schema_update_request import SchemaUpdateRequest
+from pygravitino.model.schema_updates_request import SchemaUpdatesRequest
+from pygravitino.model.set_catalog_property_request import SetCatalogPropertyRequest
+from pygravitino.model.set_metalake_property_request import SetMetalakePropertyRequest
+from pygravitino.model.set_schema_property_request import SetSchemaPropertyRequest
+from pygravitino.model.set_table_property_request import SetTablePropertyRequest
+from pygravitino.model.sort_order import SortOrder
+from pygravitino.model.struct_field import StructField
+from pygravitino.model.struct_type import StructType
+from pygravitino.model.table import Table
+from pygravitino.model.table_create_request import TableCreateRequest
+from pygravitino.model.table_update_request import TableUpdateRequest
+from pygravitino.model.table_updates_request import TableUpdatesRequest
+from pygravitino.model.truncate_partitioning import TruncatePartitioning
+from pygravitino.model.union_type import UnionType
+from pygravitino.model.update_catalog_comment_request import UpdateCatalogCommentRequest
+from pygravitino.model.update_metalake_comment_request import UpdateMetalakeCommentRequest
+from pygravitino.model.update_table_column_comment_request import UpdateTableColumnCommentRequest
+from pygravitino.model.update_table_column_nullability_request import UpdateTableColumnNullabilityRequest
+from pygravitino.model.update_table_column_position_request import UpdateTableColumnPositionRequest
+from pygravitino.model.update_table_column_type_request import UpdateTableColumnTypeRequest
+from pygravitino.model.update_table_comment_request import UpdateTableCommentRequest
+from pygravitino.model.version import Version
+from pygravitino.model.year_partitioning import YearPartitioning

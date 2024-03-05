@@ -165,27 +165,12 @@ apply(plugin = "org.openapi.generator")
 openApiGenerate {
   inputSpec = "$rootDir/docs/open-api/openapi.yaml".toString()
   generatorName = "python"
-  outputDir = "$rootDir/clients/client-python"
-  modelPackage = "dto"
-  modelNameSuffix = "dto"
-  generateApiDocumentation.set(false)
-  generateModelDocumentation.set(false)
-  generateApiTests.set(false)
-  generateModelTests.set(false)
+  outputDir = "$rootDir/python"
   packageName.set("pygravitino")
+  cleanupOutput.set(true)
+  ignoreFileOverride.set("$rootDir/.openapi-generator-ignore")
 
-  globalProperties.set(
-    mapOf(
-      "apis" to "false",
-      "models" to "Audit,Catalog,Metalake,Version"
-    )
-  )
-
-  configOptions.set(
-    mapOf(
-      "generateSourceCodeOnly" to "true"
-    )
-  )
+  logToStderr.set(true)
 }
 
 subprojects {
