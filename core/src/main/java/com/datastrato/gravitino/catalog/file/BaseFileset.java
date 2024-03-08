@@ -5,11 +5,12 @@
 package com.datastrato.gravitino.catalog.file;
 
 import com.datastrato.gravitino.file.Fileset;
+import com.datastrato.gravitino.file.FilesetOperation;
 import com.datastrato.gravitino.meta.AuditInfo;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public abstract class BaseFileset implements Fileset {
+public abstract class BaseFileset implements Fileset, FilesetOperation {
 
   protected String name;
 

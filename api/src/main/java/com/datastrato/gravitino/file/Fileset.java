@@ -9,9 +9,7 @@ import com.datastrato.gravitino.Namespace;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
@@ -93,16 +91,4 @@ public interface Fileset extends Auditable {
   default Map<String, String> properties() {
     return Collections.emptyMap();
   }
-
-  boolean deleteFile(String files, boolean recursive);
-
-  InputStream openFile(String file);
-
-  OutputStream writeFile(String file);
-
-  boolean createFile(String file);
-
-  boolean mkdir(String name);
-
-  Iterable<FileInfo> listFiles(String path);
 }
