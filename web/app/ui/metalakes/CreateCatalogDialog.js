@@ -57,7 +57,7 @@ const schema = yup.object().shape({
       nameRegex,
       'This field must start with a letter or underscore, and can only contain letters, numbers, and underscores'
     ),
-  type: yup.mixed().oneOf(['relational']).required(),
+  type: yup.mixed().oneOf(['relational', 'fileset']).required(),
   provider: yup.mixed().oneOf(providerTypeValues).required(),
   propItems: yup.array().of(
     yup.object().shape({
@@ -162,6 +162,11 @@ const CreateCatalogDialog = props => {
 
   const handleChangeProvider = (onChange, e) => {
     onChange(e.target.value)
+  }
+
+  const handleChangeType = (onChange, e) => {
+    onChange(e.target.value)
+    setValue('provider', 'hadoop')
   }
 
   const resetPropsFields = (providers = [], index = -1) => {
@@ -401,12 +406,13 @@ const CreateCatalogDialog = props => {
                       value={value}
                       label='Type'
                       defaultValue='relational'
-                      onChange={onChange}
+                      onChange={e => handleChangeType(onChange, e)}
                       error={Boolean(errors.type)}
                       labelId='select-catalog-type'
                       disabled={type === 'update'}
                     >
                       <MenuItem value={'relational'}>relational</MenuItem>
+                      <MenuItem value={'fileset'}>fileset</MenuItem>
                     </Select>
                   )}
                 />
@@ -437,6 +443,7 @@ const CreateCatalogDialog = props => {
                       <MenuItem value={'lakehouse-iceberg'}>iceberg</MenuItem>
                       <MenuItem value={'jdbc-mysql'}>mysql</MenuItem>
                       <MenuItem value={'jdbc-postgresql'}>postgresql</MenuItem>
+                      <MenuItem value={'hadoop'}>hadoop</MenuItem>
                     </Select>
                   )}
                 />

@@ -3,6 +3,8 @@
  * This software is licensed under the Apache License version 2.
  */
 
+import { values } from 'lodash-es'
+
 export const providers = [
   {
     label: 'hive',
@@ -120,5 +122,21 @@ export const providers = [
         required: true
       }
     ]
+  },
+  {
+    label: 'hadoop',
+    value: 'hadoop',
+    defaultProps: []
+  }
+]
+
+export const types = [
+  {
+    label: 'relational',
+    value: 'relational'
+  },
+  {
+    label: 'fileset',
+    value: 'fileset'
   }
 ]
