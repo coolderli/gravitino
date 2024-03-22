@@ -2,7 +2,6 @@
  * Copyright 2023 Datastrato Pvt Ltd.
  * This software is licensed under the Apache License version 2.
  */
-import java.util.*
 
 plugins {
   `maven-publish`
@@ -132,6 +131,21 @@ dependencies {
   testImplementation(libs.trino.jdbc)
 
   testRuntimeOnly(libs.junit.jupiter.engine)
+
+  // ------------------------- flink -------------------------------
+  val flinkVersion: String = libs.versions.flink.get()
+
+  testImplementation(project(":flink-connector"))
+  testImplementation("org.apache.flink:flink-table-api-java:$flinkVersion")
+  testImplementation("org.apache.flink:flink-table-api-bridge-base:$flinkVersion") {
+    exclude("commons-cli", "commons-cli")
+    exclude("commons-io", "commons-io")
+    exclude("com.google.code.findbugs", "jsr305")
+  }
+  testImplementation("org.apache.flink:flink-table-planner_$scalaVersion:$flinkVersion")
+  testImplementation("org.apache.flink:flink-connector-hive_$scalaVersion:$flinkVersion")
+
+  // ----------------------- end flink -------------------------------
 }
 
 tasks.test {
