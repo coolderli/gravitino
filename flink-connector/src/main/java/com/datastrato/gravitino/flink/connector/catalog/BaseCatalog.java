@@ -5,7 +5,14 @@
 
 package com.datastrato.gravitino.flink.connector.catalog;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.datastrato.gravitino.Catalog;
+import com.datastrato.gravitino.NameIdentifier;
+import com.datastrato.gravitino.Namespace;
+import com.datastrato.gravitino.rel.Schema;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
 import org.apache.flink.table.catalog.CatalogDatabase;
@@ -35,8 +42,17 @@ import org.apache.flink.table.expressions.Expression;
  * org.apache.flink.table.catalog.Catalog} interface.
  */
 public abstract class BaseCatalog extends AbstractCatalog {
-  protected BaseCatalog(String catalogName, String defaultDatabase) {
+
+  private final GravitinoCatalogManager gravitinoCatalogManager;
+  private final String metalakeName;
+  private final String catalogName;
+  private Catalog catalog;
+
+  protected BaseCatalog(String catalogName, String defaultDatabase, String metalakeName, String metalakeUri) {
     super(catalogName, defaultDatabase);
+    this.metalakeName = metalakeName;
+    this.catalogName = catalogName;
+    this.gravitinoCatalogManager = GravitinoCatalogManager.create(metalakeUri, metalakeName);
   }
 
   @Override
@@ -47,12 +63,20 @@ public abstract class BaseCatalog extends AbstractCatalog {
 
   @Override
   public List<String> listDatabases() throws CatalogException {
-    throw new UnsupportedOperationException();
+    NameIdentifier[] nameIdentifiers = lazyCatalog(catalogName)
+            .asSchemas()
+            .listSchemas(Namespace.ofCatalog(metalakeName));
+    return Arrays.stream(nameIdentifiers)
+            .map(NameIdentifier::name)
+            .collect(Collectors.toList());
   }
 
   @Override
-  public CatalogDatabase getDatabase(String s) throws DatabaseNotExistException, CatalogException {
-    throw new UnsupportedOperationException();
+  public CatalogDatabase getDatabase(String databaseName) throws DatabaseNotExistException, CatalogException {
+    Schema schema = lazyCatalog(catalogName)
+            .asSchemas()
+            .loadSchema(NameIdentifier.ofCatalog(metalakeName, catalogName));
+    return null;
   }
 
   @Override
@@ -277,5 +301,13 @@ public abstract class BaseCatalog extends AbstractCatalog {
       boolean b)
       throws PartitionNotExistException, CatalogException {
     throw new UnsupportedOperationException();
+  }
+
+  private Catalog lazyCatalog(String catalogName) {
+    if (catalog == null) {
+      this.catalog = this.gravitinoCatalogManager.getGravitinoCatalogInfo(catalogName);
+    }
+
+    return catalog;
   }
 }

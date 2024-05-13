@@ -7,7 +7,7 @@ package com.datastrato.gravitino.flink.connector.store;
 
 import static com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFactoryOptions.GRAVITINO;
 import static com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFactoryOptions.METALAKE_NAME;
-import static com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFactoryOptions.METALAKE_URL;
+import static com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFactoryOptions.METALAKE_URI;
 import static org.apache.flink.table.factories.FactoryUtil.createCatalogStoreFactoryHelper;
 
 import com.datastrato.gravitino.flink.connector.catalog.GravitinoCatalogManager;
@@ -37,7 +37,7 @@ public class GravitinoCatalogStoreFactory implements CatalogStoreFactory {
     factoryHelper.validate();
 
     ReadableConfig options = factoryHelper.getOptions();
-    String metalakeUrl = options.get(METALAKE_URL);
+    String metalakeUrl = options.get(METALAKE_URI);
     String metalakeName = options.get(METALAKE_NAME);
     this.catalogManager = GravitinoCatalogManager.create(metalakeUrl, metalakeName);
   }
@@ -56,7 +56,7 @@ public class GravitinoCatalogStoreFactory implements CatalogStoreFactory {
 
   @Override
   public Set<ConfigOption<?>> requiredOptions() {
-    return ImmutableSet.of(METALAKE_NAME, METALAKE_URL);
+    return ImmutableSet.of(METALAKE_NAME, METALAKE_URI);
   }
 
   @Override

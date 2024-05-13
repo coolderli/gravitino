@@ -14,7 +14,7 @@ public class GravitinoCatalogStoreFactoryOptions {
 
   public static final String GRAVITINO = "gravitino";
 
-  public static final ConfigOption<String> METALAKE_URL =
+  public static final ConfigOption<String> METALAKE_URI =
       ConfigOptions.key("metalakeUri")
           .stringType()
           .noDefaultValue()

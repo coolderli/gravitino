@@ -10,12 +10,12 @@ import org.apache.flink.table.catalog.hive.HiveCatalog;
 import org.apache.flink.table.factories.Factory;
 
 public class GravitinoHiveCatalog extends BaseCatalog {
-  private GravitinoHiveCatalog(String catalogName, String defaultDatabase) {
-    super(catalogName, defaultDatabase);
+  private GravitinoHiveCatalog(String catalogName, String defaultDatabase, String metalakeName, String metalakeUrl) {
+    super(catalogName, defaultDatabase, metalakeName, metalakeUrl);
   }
 
-  public GravitinoHiveCatalog(HiveCatalog catalog) {
-    this(catalog.getName(), catalog.getDefaultDatabase());
+  public GravitinoHiveCatalog(HiveCatalog catalog, String metalakeName, String metalakeUri) {
+    this(catalog.getName(), catalog.getDefaultDatabase(), metalakeName, metalakeUri);
   }
 
   @Override

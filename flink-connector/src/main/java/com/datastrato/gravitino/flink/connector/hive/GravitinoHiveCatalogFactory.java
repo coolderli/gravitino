@@ -6,6 +6,9 @@
 package com.datastrato.gravitino.flink.connector.hive;
 
 import java.util.Set;
+
+import com.datastrato.gravitino.flink.connector.catalog.GravitinoCatalogManager;
+import com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFactoryOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
@@ -21,7 +24,18 @@ public class GravitinoHiveCatalogFactory implements CatalogFactory {
   public Catalog createCatalog(Context context) {
     this.hiveCatalogFactory = new HiveCatalogFactory();
     HiveCatalog catalog = (HiveCatalog) this.hiveCatalogFactory.createCatalog(context);
-    return new GravitinoHiveCatalog(catalog);
+
+    String metalakeName;
+    String metalakeUri;
+    if (GravitinoCatalogManager.get() != null) {
+      metalakeName = GravitinoCatalogManager.get().getMetalakeName();
+      metalakeUri = GravitinoCatalogManager.get().getMetalakeUri();
+    } else {
+      metalakeName = context.getConfiguration().get(GravitinoCatalogStoreFactoryOptions.METALAKE_NAME);
+      metalakeUri = context.getConfiguration().get(GravitinoCatalogStoreFactoryOptions.METALAKE_URI);
+    }
+
+    return new GravitinoHiveCatalog(catalog, metalakeName, metalakeUri);
   }
 
   @Override

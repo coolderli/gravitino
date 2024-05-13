@@ -28,11 +28,13 @@ public class GravitinoCatalogManager {
   private volatile boolean isClosed = false;
   private final Cache<String, Catalog> gravitinoCatalogs;
   private final String metalakeName;
+  private final String metalakeUri;
   private final GravitinoMetalake metalake;
   private final GravitinoAdminClient gravitinoClient;
 
   private GravitinoCatalogManager(String gravitinoUri, String metalakeName) {
     this.metalakeName = metalakeName;
+    this.metalakeUri = gravitinoUri;
     this.gravitinoClient = GravitinoAdminClient.builder(gravitinoUri).build();
     // Will not evict catalog by default
     this.gravitinoCatalogs = CacheBuilder.newBuilder().build();
@@ -93,13 +95,22 @@ public class GravitinoCatalogManager {
   }
 
   /**
-   * Get the metalake.
+   * Get the metalake name.
    *
    * @return the metalake name.
    */
   public String getMetalakeName() {
     return metalakeName;
   }
+
+  /**
+   * Get the metalake uri
+   *
+   * @return the metalake uri
+   */
+    public String getMetalakeUri() {
+      return metalakeUri;
+    }
 
   /**
    * Create catalog in Gravitino.
