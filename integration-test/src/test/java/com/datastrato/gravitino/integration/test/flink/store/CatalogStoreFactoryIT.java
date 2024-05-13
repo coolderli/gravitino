@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 public class CatalogStoreFactoryIT extends FlinkEnvIT {
 
+  private static final String DEFAULT_CATALOG = "default_catalog";
+
   @Test
   public void testCreateGravitinoHiveCatalog() {
     String catalogName = "gravitino-hive";
@@ -26,6 +28,7 @@ public class CatalogStoreFactoryIT extends FlinkEnvIT {
     configuration.set(CommonCatalogOptions.CATALOG_TYPE, GravitinoHiveCatalogFactory.IDENTIFIER);
     configuration.set(HiveCatalogFactoryOptions.HIVE_CONF_DIR, "src/test/resources/flink-tests");
     CatalogDescriptor catalogDescriptor = CatalogDescriptor.of(catalogName, configuration);
+    tableEnv.useCatalog(DEFAULT_CATALOG);
     tableEnv.createCatalog(catalogName, catalogDescriptor);
     Assertions.assertTrue(
         metalake.catalogExists(NameIdentifier.ofCatalog(metalakeName, catalogName)));
@@ -40,7 +43,7 @@ public class CatalogStoreFactoryIT extends FlinkEnvIT {
         Arrays.asList(catalogs).contains(catalogName), "Should create the correct catalog.");
 
     Assertions.assertEquals(
-        "default_catalog",
+        DEFAULT_CATALOG,
         tableEnv.getCurrentCatalog(),
         "Current catalog should be default_catalog in flink");
     tableEnv.useCatalog(catalogName);
@@ -56,6 +59,7 @@ public class CatalogStoreFactoryIT extends FlinkEnvIT {
     Configuration configuration = new Configuration();
     configuration.set(CommonCatalogOptions.CATALOG_TYPE, GravitinoHiveCatalogFactory.IDENTIFIER);
     configuration.set(HiveCatalogFactoryOptions.HIVE_CONF_DIR, "src/test/resources/flink-tests");
+    tableEnv.useCatalog(DEFAULT_CATALOG);
     tableEnv.executeSql(
         String.format(
             "create catalog %s with ('type'='gravitino-hive', "
@@ -74,7 +78,7 @@ public class CatalogStoreFactoryIT extends FlinkEnvIT {
         Arrays.asList(catalogs).contains(catalogName), "Should create the correct catalog.");
 
     Assertions.assertEquals(
-        "default_catalog",
+        DEFAULT_CATALOG,
         tableEnv.getCurrentCatalog(),
         "Current catalog should be default_catalog in flink");
     tableEnv.useCatalog(catalogName);
