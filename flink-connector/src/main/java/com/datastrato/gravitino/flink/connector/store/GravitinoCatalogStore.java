@@ -63,7 +63,7 @@ public class GravitinoCatalogStore extends AbstractCatalogStore {
         Preconditions.checkNotNull(
             configuration.get(CommonCatalogOptions.CATALOG_TYPE),
             "%s should not be null.",
-            configuration.get(CommonCatalogOptions.CATALOG_TYPE));
+            CommonCatalogOptions.CATALOG_TYPE);
 
     switch (catalogType) {
       case GravitinoHiveCatalogFactory.IDENTIFIER:
@@ -79,7 +79,7 @@ public class GravitinoCatalogStore extends AbstractCatalogStore {
         Preconditions.checkNotNull(
             configuration.get(CommonCatalogOptions.CATALOG_TYPE),
             "%s should not be null.",
-            configuration.get(CommonCatalogOptions.CATALOG_TYPE));
+            CommonCatalogOptions.CATALOG_TYPE);
 
     switch (catalogType) {
       case GravitinoHiveCatalogFactory.IDENTIFIER:
