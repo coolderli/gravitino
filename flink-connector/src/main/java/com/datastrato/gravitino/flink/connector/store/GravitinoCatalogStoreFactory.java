@@ -21,6 +21,7 @@ import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.table.factories.CatalogStoreFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
+/** The Factory for creating {@link GravitinoCatalogStore}. */
 public class GravitinoCatalogStoreFactory implements CatalogStoreFactory {
   private GravitinoCatalogManager catalogManager;
 

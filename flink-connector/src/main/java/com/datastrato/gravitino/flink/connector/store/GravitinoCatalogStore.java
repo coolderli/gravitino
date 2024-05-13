@@ -17,6 +17,7 @@ import org.apache.flink.table.catalog.CommonCatalogOptions;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.util.Preconditions;
 
+/** GravitinoCatalogStore is used to store catalog information to Gravitino server. */
 public class GravitinoCatalogStore extends AbstractCatalogStore {
 
   private final GravitinoCatalogManager gravitinoCatalogManager;

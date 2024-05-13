@@ -39,6 +39,13 @@ public class GravitinoCatalogManager {
     this.metalake = gravitinoClient.loadMetalake(NameIdentifier.ofMetalake(metalakeName));
   }
 
+  /**
+   * Create GravitinoCatalogManager with Gravitino server url and metalake name.
+   *
+   * @param gravitinoUrl Gravitino server url
+   * @param metalakeName Metalake name
+   * @return GravitinoCatalogManager
+   */
   public static GravitinoCatalogManager create(String gravitinoUrl, String metalakeName) {
     Preconditions.checkState(
         gravitinoCatalogManager == null, "Should not create duplicate GravitinoCatalogManager");
@@ -46,6 +53,11 @@ public class GravitinoCatalogManager {
     return gravitinoCatalogManager;
   }
 
+  /**
+   * Get GravitinoCatalogManager instance.
+   *
+   * @return GravitinoCatalogManager
+   */
   public static GravitinoCatalogManager get() {
     Preconditions.checkState(
         gravitinoCatalogManager != null, "GravitinoCatalogManager has not created yet");
@@ -54,12 +66,23 @@ public class GravitinoCatalogManager {
     return gravitinoCatalogManager;
   }
 
+  /**
+   * Close GravitinoCatalogManager.
+   *
+   * <p>After close, GravitinoCatalogManager can not be used anymore.
+   */
   public void close() {
     Preconditions.checkState(!isClosed, "Gravitino Catalog is already closed");
     isClosed = true;
     gravitinoClient.close();
   }
 
+  /**
+   * Get GravitinoCatalog by name.
+   *
+   * @param name Catalog name
+   * @return The Gravitino Catalog
+   */
   public Catalog getGravitinoCatalogInfo(String name) {
     try {
       return gravitinoCatalogs.get(name, () -> loadCatalog(name));
@@ -69,10 +92,25 @@ public class GravitinoCatalogManager {
     }
   }
 
+  /**
+   * Get the metalake.
+   *
+   * @return the metalake name.
+   */
   public String getMetalakeName() {
     return metalakeName;
   }
 
+  /**
+   * Create catalog in Gravitino.
+   *
+   * @param catalogName Catalog name
+   * @param type Catalog type
+   * @param comment Catalog comment
+   * @param provider Catalog provider
+   * @param properties Catalog properties
+   * @return Catalog
+   */
   public Catalog createCatalog(
       String catalogName,
       Catalog.Type type,
@@ -83,10 +121,21 @@ public class GravitinoCatalogManager {
         NameIdentifier.ofCatalog(metalakeName, catalogName), type, provider, comment, properties);
   }
 
+  /**
+   * Drop catalog in Gravitino.
+   *
+   * @param catalogName Catalog name
+   * @return boolean
+   */
   public boolean dropCatalog(String catalogName) {
     return metalake.dropCatalog(NameIdentifier.ofCatalog(metalakeName, catalogName));
   }
 
+  /**
+   * List catalogs in Gravitino.
+   *
+   * @return Set of catalog names
+   */
   public Set<String> listCatalogs() {
     NameIdentifier[] catalogNames = metalake.listCatalogs(Namespace.ofCatalog(metalake.name()));
     LOG.info(
@@ -96,6 +145,12 @@ public class GravitinoCatalogManager {
     return Arrays.stream(catalogNames).map(NameIdentifier::name).collect(Collectors.toSet());
   }
 
+  /**
+   * Check if catalog exists in Gravitino.
+   *
+   * @param catalogName Catalog name
+   * @return boolean
+   */
   public boolean contains(String catalogName) {
     return metalake.catalogExists(NameIdentifier.ofCatalog(metalakeName, catalogName));
   }

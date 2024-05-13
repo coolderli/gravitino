@@ -5,7 +5,6 @@
 
 package com.datastrato.gravitino.flink.connector.catalog;
 
-import com.datastrato.gravitino.NameIdentifier;
 import java.util.List;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -31,6 +30,10 @@ import org.apache.flink.table.catalog.stats.CatalogColumnStatistics;
 import org.apache.flink.table.catalog.stats.CatalogTableStatistics;
 import org.apache.flink.table.expressions.Expression;
 
+/**
+ * The BaseCatalog that provides a default implementation for all methods in the {@link
+ * org.apache.flink.table.catalog.Catalog} interface.
+ */
 public abstract class BaseCatalog extends AbstractCatalog {
   protected BaseCatalog(String catalogName, String defaultDatabase) {
     super(catalogName, defaultDatabase);
@@ -89,10 +92,6 @@ public abstract class BaseCatalog extends AbstractCatalog {
   public CatalogBaseTable getTable(ObjectPath objectPath)
       throws TableNotExistException, CatalogException {
     throw new UnsupportedOperationException();
-  }
-
-  private NameIdentifier toNameIdentifier(ObjectPath objectPath) {
-    return null;
   }
 
   @Override
