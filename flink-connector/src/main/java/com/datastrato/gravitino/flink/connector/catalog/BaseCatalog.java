@@ -6,6 +6,8 @@
 package com.datastrato.gravitino.flink.connector.catalog;
 
 import com.datastrato.gravitino.Catalog;
+import com.datastrato.gravitino.NameIdentifier;
+import com.datastrato.gravitino.Namespace;
 import com.datastrato.gravitino.Schema;
 import com.datastrato.gravitino.SchemaChange;
 import com.datastrato.gravitino.exceptions.NoSuchCatalogException;
@@ -13,12 +15,16 @@ import com.datastrato.gravitino.exceptions.NoSuchSchemaException;
 import com.datastrato.gravitino.exceptions.NonEmptySchemaException;
 import com.datastrato.gravitino.exceptions.SchemaAlreadyExistsException;
 import com.datastrato.gravitino.flink.connector.PropertiesConverter;
+import com.datastrato.gravitino.rel.Table;
+import com.datastrato.gravitino.rel.TableChange;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -135,8 +141,14 @@ public abstract class BaseCatalog extends AbstractCatalog {
   }
 
   @Override
-  public List<String> listTables(String s) throws DatabaseNotExistException, CatalogException {
-    throw new UnsupportedOperationException();
+  public List<String> listTables(String database) throws DatabaseNotExistException, CatalogException {
+    try {
+      return Stream.of(catalog().asTableCatalog().listTables(Namespace.of(getName(), database)))
+          .map(NameIdentifier::name)
+          .collect(Collectors.toList());
+    } catch (NoSuchSchemaException e) {
+      throw new DatabaseNotExistException(getName(), database);
+    }
   }
 
   @Override
@@ -147,24 +159,53 @@ public abstract class BaseCatalog extends AbstractCatalog {
   @Override
   public CatalogBaseTable getTable(ObjectPath objectPath)
       throws TableNotExistException, CatalogException {
-    throw new UnsupportedOperationException();
+    try {
+      Table table = catalog().asTableCatalog()
+          .loadTable(NameIdentifier.of(
+              Namespace.of(getName(), objectPath.getDatabaseName()),
+              objectPath.getObjectName()));
+      return convertToFlinkTable(table);
+    } catch (NoSuchCatalogException e) {
+      throw new CatalogException(e);
+    }
   }
 
   @Override
   public boolean tableExists(ObjectPath objectPath) throws CatalogException {
-    throw new UnsupportedOperationException();
+    return catalog().asTableCatalog().tableExists(NameIdentifier.of(
+        Namespace.of(getName(), objectPath.getDatabaseName()), objectPath.getObjectName()));
   }
 
   @Override
-  public void dropTable(ObjectPath objectPath, boolean b)
+  public void dropTable(ObjectPath objectPath, boolean ignoreIfNotExists)
       throws TableNotExistException, CatalogException {
-    throw new UnsupportedOperationException();
+    boolean dropped = catalog().asTableCatalog().dropTable(NameIdentifier.of(
+        Namespace.of(getName(), objectPath.getDatabaseName()), objectPath.getObjectName()));
+    if (!dropped && !ignoreIfNotExists) {
+      throw new TableNotExistException(getName(), objectPath);
+    }
   }
 
   @Override
-  public void renameTable(ObjectPath objectPath, String s, boolean b)
+  public void renameTable(ObjectPath objectPath, String newTableName, boolean ignoreIfNotExists)
       throws TableNotExistException, TableAlreadyExistException, CatalogException {
-    throw new UnsupportedOperationException();
+    NameIdentifier identifier = NameIdentifier.of(
+        Namespace.of(getName(), objectPath.getDatabaseName()), objectPath.getObjectName());
+
+    if (catalog().asTableCatalog().tableExists(identifier)) {
+      throw new TableAlreadyExistException(getName(), objectPath);
+    }
+
+    try {
+      catalog().asTableCatalog().alterTable(
+          NameIdentifier.of(
+              Namespace.of(getName(), objectPath.getDatabaseName()), objectPath.getObjectName()),
+          TableChange.rename(newTableName));
+    } catch (NoSuchCatalogException e) {
+      if (!ignoreIfNotExists) {
+        throw new TableNotExistException(getName(), objectPath);
+      }
+    }
   }
 
   @Override
@@ -336,6 +377,8 @@ public abstract class BaseCatalog extends AbstractCatalog {
   }
 
   protected abstract PropertiesConverter getPropertiesConverter();
+
+  protected abstract CatalogBaseTable convertToFlinkTable(Table table);
 
   @VisibleForTesting
   static SchemaChange[] getSchemaChange(CatalogDatabase current, CatalogDatabase updated) {
