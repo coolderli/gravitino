@@ -7,11 +7,18 @@ package com.datastrato.gravitino.flink.connector.utils;
 
 import com.datastrato.gravitino.rel.types.Type;
 import com.datastrato.gravitino.rel.types.Types;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.CharType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.VarCharType;
 
 public class TypeUtils {
 
@@ -20,8 +27,11 @@ public class TypeUtils {
   public static Type toGravitinoType(LogicalType logicalType) {
     switch (logicalType.getTypeRoot()) {
       case CHAR:
+        CharType charType = (CharType) logicalType;
+        return Types.FixedCharType.of(charType.getLength());
       case VARCHAR:
-        return Types.StringType.get();
+        VarCharType varCharType = (VarCharType) logicalType;
+        return Types.VarCharType.of(varCharType.getLength());
       case BOOLEAN:
         return Types.BooleanType.get();
       case BINARY:
@@ -32,6 +42,7 @@ public class TypeUtils {
         return Types.DecimalType.of(decimalType.getPrecision(), decimalType.getScale());
       case TINYINT:
       case SMALLINT:
+        return Types.ShortType.get();
       case INTEGER:
         return Types.IntegerType.get();
       case DATE:
@@ -91,5 +102,63 @@ public class TypeUtils {
         throw new UnsupportedOperationException(
             "Not support type: " + logicalType.asSummaryString());
     }
+  }
+
+  public static DataType toFlinkType(Type gravitinoType) {
+    if (gravitinoType instanceof Types.ByteType) {
+      return DataTypes.BINARY(1);
+    } else if (gravitinoType instanceof Types.ShortType) {
+      return DataTypes.SMALLINT();
+    } else if (gravitinoType instanceof Types.IntegerType) {
+      return DataTypes.INT();
+    } else if (gravitinoType instanceof Types.LongType) {
+      return DataTypes.BIGINT();
+    } else if (gravitinoType instanceof Types.FloatType) {
+      return DataTypes.FLOAT();
+    } else if (gravitinoType instanceof Types.DoubleType) {
+      return DataTypes.DOUBLE();
+    } else if (gravitinoType instanceof Types.DecimalType) {
+      Types.DecimalType decimalType = (Types.DecimalType) gravitinoType;
+      return DataTypes.DECIMAL(decimalType.precision(), decimalType.scale());
+    } else if (gravitinoType instanceof Types.StringType) {
+      return DataTypes.STRING();
+    } else if (gravitinoType instanceof Types.VarCharType) {
+      Types.VarCharType varCharType = (Types.VarCharType) gravitinoType;
+      return DataTypes.VARCHAR(varCharType.length());
+    } else if (gravitinoType instanceof Types.FixedCharType) {
+      Types.FixedCharType charType = (Types.FixedCharType) gravitinoType;
+      return DataTypes.CHAR(charType.length());
+    } else if (gravitinoType instanceof Types.BinaryType) {
+      return DataTypes.BYTES();
+    } else if (gravitinoType instanceof Types.BooleanType) {
+      return DataTypes.BOOLEAN();
+    } else if (gravitinoType instanceof Types.DateType) {
+      return DataTypes.DATE();
+    } else if (gravitinoType instanceof Types.TimestampType
+        && ((Types.TimestampType) gravitinoType).hasTimeZone()) {
+      return DataTypes.TIMESTAMP_LTZ();
+    } else if (gravitinoType instanceof Types.ListType) {
+      Types.ListType listType = (Types.ListType) gravitinoType;
+      return DataTypes.ARRAY(toFlinkType(listType.elementType()));
+    } else if (gravitinoType instanceof Types.MapType) {
+      Types.MapType mapType = (Types.MapType) gravitinoType;
+      return DataTypes.MAP(toFlinkType(mapType.keyType()), toFlinkType(mapType.valueType()));
+    } else if (gravitinoType instanceof Types.StructType) {
+      Types.StructType structType = (Types.StructType) gravitinoType;
+      List<DataTypes.Field> fields =
+          Arrays.stream(structType.fields())
+              .map(f -> DataTypes.FIELD(f.name(), toFlinkType(f.type()), f.comment()))
+              .collect(Collectors.toList());
+      return DataTypes.ROW(fields);
+    } else if (gravitinoType instanceof Types.NullType) {
+      return DataTypes.NULL();
+    } else if (gravitinoType instanceof Types.TimeType) {
+      return DataTypes.TIME();
+    } else if (gravitinoType instanceof Types.IntervalYearType) {
+      return DataTypes.INTERVAL(DataTypes.YEAR());
+    } else if (gravitinoType instanceof Types.IntervalDayType) {
+      return DataTypes.INTERVAL(DataTypes.DAY());
+    }
+    throw new UnsupportedOperationException("Not support " + gravitinoType.toString());
   }
 }

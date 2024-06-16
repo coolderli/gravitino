@@ -5,14 +5,20 @@
 package com.datastrato.gravitino.flink.connector.integration.test.hive;
 
 import static com.datastrato.gravitino.catalog.hive.HiveCatalogPropertiesMeta.METASTORE_URIS;
+import static com.datastrato.gravitino.rel.expressions.transforms.Transforms.EMPTY_TRANSFORM;
 
+import com.datastrato.gravitino.NameIdentifier;
 import com.datastrato.gravitino.Schema;
 import com.datastrato.gravitino.catalog.hive.HiveSchemaPropertiesMetadata;
+import com.datastrato.gravitino.catalog.hive.HiveTable;
 import com.datastrato.gravitino.flink.connector.PropertiesConverter;
 import com.datastrato.gravitino.flink.connector.hive.GravitinoHiveCatalog;
 import com.datastrato.gravitino.flink.connector.hive.GravitinoHiveCatalogFactoryOptions;
 import com.datastrato.gravitino.flink.connector.integration.test.FlinkEnvIT;
 import com.datastrato.gravitino.flink.connector.integration.test.utils.TestUtils;
+import com.datastrato.gravitino.rel.Column;
+import com.datastrato.gravitino.rel.Table;
+import com.datastrato.gravitino.rel.types.Types;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -371,4 +377,66 @@ public class FlinkHiveCatalogIT extends FlinkEnvIT {
       catalog.asSchemas().dropSchema(schema, true);
     }
   }
+
+  @Test
+  public void testCreateNoPartitionTable() {
+    String databaseName, tableName, comment;
+    databaseName = tableName = "test_create_table";
+    comment = "test comment";
+    String key = "test key";
+    String value = "test value";
+
+    com.datastrato.gravitino.Catalog catalog = metalake.loadCatalog(defaultHiveCatalog);
+    testWithSchema(
+        catalog,
+        databaseName,
+        () -> {
+          TableResult result =
+              sql(
+                  "CREATE TABLE %s "
+                      + "(user_id STRING COMMENT 'USER_ID', "
+                      + " order_amount DOUBLE COMMENT 'ORDER_AMOUNT')"
+                      + "COMMENT '%s' WITH ("
+                      + "'connector'='hive',"
+                      + "'%s' = '%s')",
+                  tableName, comment, key, value);
+          TestUtils.assertTableResult(result, ResultKind.SUCCESS);
+
+          Table table =
+              catalog
+                  .asTableCatalog()
+                  .loadTable(
+                      NameIdentifier.of(
+                          metalake.name(), defaultHiveCatalog, databaseName, tableName));
+          Assertions.assertNotNull(table);
+          Assertions.assertInstanceOf(HiveTable.class, table);
+          Assertions.assertEquals(comment, table.comment());
+          Assertions.assertEquals(value, table.properties().get(key));
+          Column[] columns =
+              new Column[] {
+                Column.of("user_id", Types.StringType.get(), "USER_ID"),
+                Column.of("order_amount", Types.DoubleType.get(), "ORDER_AMOUNT")
+              };
+          Assertions.assertArrayEquals(columns, table.columns());
+          Assertions.assertEquals(EMPTY_TRANSFORM, table.partitioning());
+        });
+  }
+
+  @Test
+  public void testAlterTableColumns() {}
+
+  @Test
+  public void testRenameTable() {}
+
+  @Test
+  public void testAlterTableComment() {}
+
+  @Test
+  public void testAlterTableProperties() {}
+
+  @Test
+  public void testListTables() {}
+
+  @Test
+  public void testDropTable() {}
 }

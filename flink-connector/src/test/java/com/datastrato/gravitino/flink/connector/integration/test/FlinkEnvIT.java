@@ -12,11 +12,14 @@ import com.datastrato.gravitino.integration.test.container.ContainerSuite;
 import com.datastrato.gravitino.integration.test.container.HiveContainer;
 import com.datastrato.gravitino.integration.test.util.AbstractIT;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import java.io.IOException;
 import java.util.Collections;
 import jline.internal.Preconditions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.TableResult;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -125,5 +128,20 @@ public abstract class FlinkEnvIT extends AbstractIT {
     configuration.setString("table.catalog-store.gravitino.gravitino.metalake", gravitinoMetalake);
     configuration.setString("table.catalog-store.gravitino.gravitino.uri", gravitinoUri);
     tableEnv = TableEnvironment.create(configuration);
+  }
+
+  protected void testWithSchema(
+      com.datastrato.gravitino.Catalog catalog, String schemaName, Runnable test) {
+    try {
+      catalog.asSchemas().createSchema(schemaName, null, ImmutableMap.of());
+      test.run();
+    } finally {
+      catalog.asSchemas().dropSchema(schemaName, true);
+    }
+  }
+
+  @FormatMethod
+  protected TableResult sql(@FormatString String sql, Object... args) {
+    return tableEnv.executeSql(String.format(sql, args));
   }
 }
