@@ -11,17 +11,20 @@ import com.datastrato.gravitino.flink.connector.store.GravitinoCatalogStoreFacto
 import com.datastrato.gravitino.integration.test.container.ContainerSuite;
 import com.datastrato.gravitino.integration.test.container.HiveContainer;
 import com.datastrato.gravitino.integration.test.util.AbstractIT;
+import com.datastrato.gravitino.rel.Column;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.function.Consumer;
 import jline.internal.Preconditions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,11 +133,13 @@ public abstract class FlinkEnvIT extends AbstractIT {
     tableEnv = TableEnvironment.create(configuration);
   }
 
-  protected void testWithSchema(
-      com.datastrato.gravitino.Catalog catalog, String schemaName, Runnable test) {
+  protected void testWithSchema(String catalogName, String schemaName, Consumer<Catalog> test) {
+    com.datastrato.gravitino.Catalog catalog = metalake.loadCatalog(catalogName);
     try {
+      tableEnv.useCatalog(catalog.name());
       catalog.asSchemas().createSchema(schemaName, null, ImmutableMap.of());
-      test.run();
+      tableEnv.useDatabase(schemaName);
+      test.accept(catalog);
     } finally {
       catalog.asSchemas().dropSchema(schemaName, true);
     }
@@ -143,5 +148,17 @@ public abstract class FlinkEnvIT extends AbstractIT {
   @FormatMethod
   protected TableResult sql(@FormatString String sql, Object... args) {
     return tableEnv.executeSql(String.format(sql, args));
+  }
+
+  protected void assertColumns(Column[] expected, Column[] actual) {
+    Assertions.assertEquals(expected.length, actual.length);
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i].name(), actual[i].name());
+      Assertions.assertEquals(expected[i].comment(), actual[i].comment());
+      Assertions.assertEquals(expected[i].dataType(), actual[i].dataType());
+      Assertions.assertEquals(expected[i].defaultValue(), actual[i].defaultValue());
+      Assertions.assertEquals(expected[i].autoIncrement(), actual[i].autoIncrement());
+      Assertions.assertEquals(expected[i].nullable(), actual[i].nullable());
+    }
   }
 }

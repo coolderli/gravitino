@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.BinaryType;
 import org.apache.flink.table.types.logical.CharType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.VarCharType;
 
 public class TypeUtils {
 
@@ -30,11 +30,16 @@ public class TypeUtils {
         CharType charType = (CharType) logicalType;
         return Types.FixedCharType.of(charType.getLength());
       case VARCHAR:
-        VarCharType varCharType = (VarCharType) logicalType;
-        return Types.VarCharType.of(varCharType.getLength());
+        return Types.StringType.get();
       case BOOLEAN:
         return Types.BooleanType.get();
       case BINARY:
+        BinaryType binary = (BinaryType) logicalType;
+        if (binary.getLength() == 1) {
+          return Types.ByteType.get();
+        } else {
+          return Types.BinaryType.get();
+        }
       case VARBINARY:
         return Types.BinaryType.get();
       case DECIMAL:
@@ -75,7 +80,6 @@ public class TypeUtils {
         Type valueType = toGravitinoType(mapType.getValueType());
         return Types.MapType.of(keyType, valueType, mapType.isNullable());
       case ROW:
-      case STRUCTURED_TYPE:
         RowType rowType = (RowType) logicalType;
         Types.StructType.Field[] fields =
             rowType.getFields().stream()
@@ -93,8 +97,8 @@ public class TypeUtils {
         return Types.StructType.of(fields);
       case NULL:
         return Types.NullType.get();
+      case STRUCTURED_TYPE:
       case UNRESOLVED:
-        return Types.UnparsedType.of(logicalType.getTypeRoot().name());
       case DISTINCT_TYPE:
       case RAW:
       case SYMBOL:

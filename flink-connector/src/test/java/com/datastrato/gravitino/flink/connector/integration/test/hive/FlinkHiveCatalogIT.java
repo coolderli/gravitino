@@ -10,7 +10,6 @@ import static com.datastrato.gravitino.rel.expressions.transforms.Transforms.EMP
 import com.datastrato.gravitino.NameIdentifier;
 import com.datastrato.gravitino.Schema;
 import com.datastrato.gravitino.catalog.hive.HiveSchemaPropertiesMetadata;
-import com.datastrato.gravitino.catalog.hive.HiveTable;
 import com.datastrato.gravitino.flink.connector.PropertiesConverter;
 import com.datastrato.gravitino.flink.connector.hive.GravitinoHiveCatalog;
 import com.datastrato.gravitino.flink.connector.hive.GravitinoHiveCatalogFactoryOptions;
@@ -18,6 +17,8 @@ import com.datastrato.gravitino.flink.connector.integration.test.FlinkEnvIT;
 import com.datastrato.gravitino.flink.connector.integration.test.utils.TestUtils;
 import com.datastrato.gravitino.rel.Column;
 import com.datastrato.gravitino.rel.Table;
+import com.datastrato.gravitino.rel.expressions.transforms.Transform;
+import com.datastrato.gravitino.rel.expressions.transforms.Transforms;
 import com.datastrato.gravitino.rel.types.Types;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -381,22 +382,38 @@ public class FlinkHiveCatalogIT extends FlinkEnvIT {
   @Test
   public void testCreateNoPartitionTable() {
     String databaseName, tableName, comment;
-    databaseName = tableName = "test_create_table";
+    databaseName = tableName = "test_create_no_partition_table";
     comment = "test comment";
     String key = "test key";
     String value = "test value";
 
-    com.datastrato.gravitino.Catalog catalog = metalake.loadCatalog(defaultHiveCatalog);
     testWithSchema(
-        catalog,
+        defaultHiveCatalog,
         databaseName,
-        () -> {
+        catalog -> {
           TableResult result =
               sql(
                   "CREATE TABLE %s "
-                      + "(user_id STRING COMMENT 'USER_ID', "
-                      + " order_amount DOUBLE COMMENT 'ORDER_AMOUNT')"
-                      + "COMMENT '%s' WITH ("
+                      + "(string_type STRING NOT NULL COMMENT 'string_type', "
+                      + " double_type DOUBLE COMMENT 'double_type',"
+                      + " int_type INT COMMENT 'int_type',"
+                      + " varchar_type VARCHAR COMMENT 'varchar_type',"
+                      + " char_type CHAR COMMENT 'char_type',"
+                      + " boolean_type BOOLEAN COMMENT 'boolean_type',"
+                      + " byte_type BINARY COMMENT 'byte_type',"
+                      + " binary_type BINARY(10) COMMENT 'binary_type',"
+                      + " decimal_type DECIMAL(10, 2) COMMENT 'decimal_type',"
+                      + " bigint_type BIGINT COMMENT 'bigint_type',"
+                      + " float_type FLOAT COMMENT 'float_type',"
+                      + " date_type DATE COMMENT 'date_type',"
+                      + " time_type TIME COMMENT 'time_type',"
+                      + " timestamp_type TIMESTAMP COMMENT 'timestamp_type',"
+                      + " timestamp_ltz_type TIMESTAMP_LTZ COMMENT 'timestamp_ltz_type',"
+                      + " smallint_type SMALLINT COMMENT 'smallint_type',"
+                      + " array_type ARRAY<INT> COMMENT 'array_type',"
+                      + " map_type MAP<INT, STRING> COMMENT 'map_type',"
+                      + " struct_type ROW<k1 INT, k2 String>)"
+                      + " COMMENT '%s' WITH ("
                       + "'connector'='hive',"
                       + "'%s' = '%s')",
                   tableName, comment, key, value);
@@ -409,7 +426,77 @@ public class FlinkHiveCatalogIT extends FlinkEnvIT {
                       NameIdentifier.of(
                           metalake.name(), defaultHiveCatalog, databaseName, tableName));
           Assertions.assertNotNull(table);
-          Assertions.assertInstanceOf(HiveTable.class, table);
+          Assertions.assertEquals(comment, table.comment());
+          Assertions.assertEquals(value, table.properties().get(key));
+          Column[] columns =
+              new Column[] {
+                Column.of("string_type", Types.StringType.get(), "string_type", false, false, null),
+                Column.of("double_type", Types.DoubleType.get(), "double_type"),
+                Column.of("int_type", Types.IntegerType.get(), "int_type"),
+                Column.of("varchar_type", Types.StringType.get(), "varchar_type"),
+                Column.of("char_type", Types.FixedCharType.of(1), "char_type"),
+                Column.of("boolean_type", Types.BinaryType.get(), "boolean_type"),
+                Column.of("byte_type", Types.ByteType.get(), "byte_type"),
+                Column.of("binary_type", Types.BinaryType.get(), "binary_type"),
+                Column.of("decimal_type", Types.DecimalType.of(10, 2), "decimal_type"),
+                Column.of("bigint_type", Types.LongType.get(), "bigint_type"),
+                Column.of("float_type", Types.FloatType.get(), "float_type"),
+                Column.of("date_type", Types.DateType.get(), "date_type"),
+                Column.of("time_type", Types.TimeType.get(), "time_type"),
+                Column.of(
+                    "timestamp_type", Types.TimestampType.withoutTimeZone(), "timestamp_type"),
+                Column.of(
+                    "timestamp_ltz_type", Types.TimestampType.withTimeZone(), "timestamp_ltz_type"),
+                Column.of("smallint_type", Types.ShortType.get(), "smallint_type"),
+                Column.of(
+                    "array_type", Types.ListType.of(Types.IntegerType.get(), true), "array_type"),
+                Column.of(
+                    "map_type",
+                    Types.MapType.of(Types.IntegerType.get(), Types.StringType.get(), true),
+                    "map_type"),
+                Column.of(
+                    "struct_type",
+                    Types.StructType.of(
+                        Types.StructType.Field.nullableField("k1", Types.IntegerType.get()),
+                        Types.StructType.Field.notNullField("k2", Types.StringType.get())),
+                    null),
+              };
+          assertColumns(columns, table.columns());
+          Assertions.assertArrayEquals(EMPTY_TRANSFORM, table.partitioning());
+        });
+  }
+
+  @Test
+  public void testPartitionTable() {
+    String databaseName, tableName, comment;
+    databaseName = tableName = "test_create_partition_table";
+    comment = "test comment";
+    String key = "test key";
+    String value = "test value";
+
+    testWithSchema(
+        defaultHiveCatalog,
+        databaseName,
+        catalog -> {
+          TableResult result =
+              sql(
+                  "CREATE TABLE %s "
+                      + "(user_id STRING COMMENT 'USER_ID', "
+                      + " order_amount DOUBLE COMMENT 'ORDER_AMOUNT')"
+                      + " PARTITIONED BY user_id, order_amount"
+                      + " COMMENT '%s' WITH ("
+                      + "'connector'='hive',"
+                      + "'%s' = '%s')",
+                  tableName, comment, key, value);
+          TestUtils.assertTableResult(result, ResultKind.SUCCESS);
+
+          Table table =
+              catalog
+                  .asTableCatalog()
+                  .loadTable(
+                      NameIdentifier.of(
+                          metalake.name(), defaultHiveCatalog, databaseName, tableName));
+          Assertions.assertNotNull(table);
           Assertions.assertEquals(comment, table.comment());
           Assertions.assertEquals(value, table.properties().get(key));
           Column[] columns =
@@ -417,8 +504,10 @@ public class FlinkHiveCatalogIT extends FlinkEnvIT {
                 Column.of("user_id", Types.StringType.get(), "USER_ID"),
                 Column.of("order_amount", Types.DoubleType.get(), "ORDER_AMOUNT")
               };
-          Assertions.assertArrayEquals(columns, table.columns());
-          Assertions.assertEquals(EMPTY_TRANSFORM, table.partitioning());
+          assertColumns(columns, table.columns());
+          Transform[] partitions =
+              new Transform[] {Transforms.identity("user_id"), Transforms.identity("order_amount")};
+          Assertions.assertArrayEquals(partitions, table.partitioning());
         });
   }
 
