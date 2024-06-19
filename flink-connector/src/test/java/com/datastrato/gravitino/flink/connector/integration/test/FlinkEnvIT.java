@@ -12,13 +12,13 @@ import com.datastrato.gravitino.integration.test.container.ContainerSuite;
 import com.datastrato.gravitino.integration.test.container.HiveContainer;
 import com.datastrato.gravitino.integration.test.util.AbstractIT;
 import com.datastrato.gravitino.rel.Column;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.function.Consumer;
-import jline.internal.Preconditions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
@@ -33,7 +33,6 @@ public abstract class FlinkEnvIT extends AbstractIT {
   private static final Logger LOG = LoggerFactory.getLogger(FlinkEnvIT.class);
   private static final ContainerSuite containerSuite = ContainerSuite.getInstance();
   protected static final String gravitinoMetalake = "flink";
-  protected static final String defaultHiveCatalog = "default_flink_hive_catalog";
 
   protected static GravitinoMetalake metalake;
   protected static TableEnvironment tableEnv;
@@ -53,7 +52,6 @@ public abstract class FlinkEnvIT extends AbstractIT {
     initMetalake();
     initHiveEnv();
     initHdfsEnv();
-    initDefaultCatalog();
     initFlinkEnv();
     LOG.info("Startup Flink env successfully, Gravitino uri: {}.", gravitinoUri);
   }
@@ -114,16 +112,6 @@ public abstract class FlinkEnvIT extends AbstractIT {
     }
   }
 
-  private static void initDefaultCatalog() {
-    Preconditions.checkNotNull(metalake);
-    metalake.createCatalog(
-        defaultHiveCatalog,
-        Catalog.Type.RELATIONAL,
-        "hive",
-        null,
-        ImmutableMap.of("metastore.uris", hiveMetastoreUri));
-  }
-
   private static void initFlinkEnv() {
     final Configuration configuration = new Configuration();
     configuration.setString(
@@ -133,16 +121,21 @@ public abstract class FlinkEnvIT extends AbstractIT {
     tableEnv = TableEnvironment.create(configuration);
   }
 
-  protected void testWithSchema(String catalogName, String schemaName, Consumer<Catalog> test) {
-    com.datastrato.gravitino.Catalog catalog = metalake.loadCatalog(catalogName);
-    try {
-      tableEnv.useCatalog(catalog.name());
+  protected static void doWithSchema(Catalog catalog, String schemaName, Consumer<Catalog> action) {
+    Preconditions.checkNotNull(catalog);
+    Preconditions.checkNotNull(schemaName);
+    tableEnv.useCatalog(catalog.name());
+    if (!catalog.asSchemas().schemaExists(schemaName)) {
       catalog.asSchemas().createSchema(schemaName, null, ImmutableMap.of());
-      tableEnv.useDatabase(schemaName);
-      test.accept(catalog);
-    } finally {
-      catalog.asSchemas().dropSchema(schemaName, true);
     }
+    tableEnv.useDatabase(schemaName);
+    action.accept(catalog);
+  }
+
+  protected static void doWithCatalog(Catalog catalog, Consumer<Catalog> action) {
+    Preconditions.checkNotNull(catalog);
+    tableEnv.useCatalog(catalog.name());
+    action.accept(catalog);
   }
 
   @FormatMethod
@@ -155,7 +148,8 @@ public abstract class FlinkEnvIT extends AbstractIT {
     for (int i = 0; i < expected.length; i++) {
       Assertions.assertEquals(expected[i].name(), actual[i].name());
       Assertions.assertEquals(expected[i].comment(), actual[i].comment());
-      Assertions.assertEquals(expected[i].dataType(), actual[i].dataType());
+      Assertions.assertEquals(
+          expected[i].dataType().simpleString(), actual[i].dataType().simpleString());
       Assertions.assertEquals(expected[i].defaultValue(), actual[i].defaultValue());
       Assertions.assertEquals(expected[i].autoIncrement(), actual[i].autoIncrement());
       Assertions.assertEquals(expected[i].nullable(), actual[i].nullable());

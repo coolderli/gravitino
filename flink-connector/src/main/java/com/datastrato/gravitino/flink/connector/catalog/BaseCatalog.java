@@ -621,7 +621,10 @@ public abstract class BaseCatalog extends AbstractCatalog {
     return Column.of(
         column.getName(),
         TypeUtils.toGravitinoType(column.getDataType().getLogicalType()),
-        column.getComment().orElse(null));
+        column.getComment().orElse(null),
+        column.getDataType().getLogicalType().isNullable(),
+        false,
+        null);
   }
 
   @VisibleForTesting
