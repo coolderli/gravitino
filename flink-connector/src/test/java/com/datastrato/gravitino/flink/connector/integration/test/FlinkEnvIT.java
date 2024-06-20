@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
+import org.apache.flink.table.api.internal.TableEnvironmentImpl;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -58,13 +59,8 @@ public abstract class FlinkEnvIT extends AbstractIT {
 
   @AfterAll
   static void stop() {
-    if (hdfs != null) {
-      try {
-        hdfs.close();
-      } catch (IOException e) {
-        LOG.error("Close HDFS filesystem failed", e);
-      }
-    }
+    stopFlinkEnv();
+    stopHdfsEnv();
     LOG.info("Stop Flink env successfully.");
   }
 
@@ -119,6 +115,27 @@ public abstract class FlinkEnvIT extends AbstractIT {
     configuration.setString("table.catalog-store.gravitino.gravitino.metalake", gravitinoMetalake);
     configuration.setString("table.catalog-store.gravitino.gravitino.uri", gravitinoUri);
     tableEnv = TableEnvironment.create(configuration);
+  }
+
+  private static void stopHdfsEnv() {
+    if (hdfs != null) {
+      try {
+        hdfs.close();
+      } catch (IOException e) {
+        LOG.error("Close HDFS filesystem failed", e);
+      }
+    }
+  }
+
+  private static void stopFlinkEnv() {
+    if (tableEnv != null) {
+      try {
+        TableEnvironmentImpl env = (TableEnvironmentImpl) tableEnv;
+        env.getCatalogManager().close();
+      } catch (Throwable throwable) {
+        LOG.error("Close Flink environment failed", throwable);
+      }
+    }
   }
 
   protected static void doWithSchema(Catalog catalog, String schemaName, Consumer<Catalog> action) {

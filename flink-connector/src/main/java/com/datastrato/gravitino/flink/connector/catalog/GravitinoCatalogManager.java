@@ -39,16 +39,9 @@ public class GravitinoCatalogManager {
    * @return GravitinoCatalogManager
    */
   public static GravitinoCatalogManager create(String gravitinoUri, String metalakeName) {
-    if (gravitinoCatalogManager == null) {
-      synchronized (GravitinoCatalogManager.class) {
-        if (gravitinoCatalogManager == null) {
-          gravitinoCatalogManager = new GravitinoCatalogManager(gravitinoUri, metalakeName);
-        }
-      }
-    }
-
     Preconditions.checkState(
-        !gravitinoCatalogManager.isClosed, "GravitinoCatalogManager is already closed");
+        gravitinoCatalogManager == null, "Should not create duplicate GravitinoCatalogManager");
+    gravitinoCatalogManager = new GravitinoCatalogManager(gravitinoUri, metalakeName);
     return gravitinoCatalogManager;
   }
 
@@ -71,9 +64,11 @@ public class GravitinoCatalogManager {
    * <p>After close, GravitinoCatalogManager can not be used anymore.
    */
   public void close() {
-    Preconditions.checkState(!isClosed, "Gravitino Catalog is already closed");
-    isClosed = true;
-    gravitinoClient.close();
+    if (!isClosed) {
+      isClosed = true;
+      gravitinoClient.close();
+      gravitinoCatalogManager = null;
+    }
   }
 
   /**

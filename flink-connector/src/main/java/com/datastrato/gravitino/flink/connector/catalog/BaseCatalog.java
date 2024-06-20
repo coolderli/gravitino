@@ -154,7 +154,9 @@ public abstract class BaseCatalog extends AbstractCatalog {
       throws DatabaseNotExistException, CatalogException {
     try {
       return Stream.of(
-              catalog().asTableCatalog().listTables(Namespace.of(catalogName(), databaseName)))
+              catalog()
+                  .asTableCatalog()
+                  .listTables(Namespace.of(metalakeName(), catalogName(), databaseName)))
           .map(NameIdentifier::name)
           .collect(Collectors.toList());
     } catch (NoSuchSchemaException e) {
@@ -220,11 +222,11 @@ public abstract class BaseCatalog extends AbstractCatalog {
       throws TableNotExistException, TableAlreadyExistException, CatalogException {
     NameIdentifier identifier =
         NameIdentifier.of(
-            Namespace.of(metalakeName(), catalogName(), tablePath.getDatabaseName()),
-            tablePath.getObjectName());
+            Namespace.of(metalakeName(), catalogName(), tablePath.getDatabaseName()), newTableName);
 
     if (catalog().asTableCatalog().tableExists(identifier)) {
-      throw new TableAlreadyExistException(catalogName(), tablePath);
+      throw new TableAlreadyExistException(
+          catalogName(), ObjectPath.fromString(tablePath.getDatabaseName() + newTableName));
     }
 
     try {
@@ -232,7 +234,9 @@ public abstract class BaseCatalog extends AbstractCatalog {
           .asTableCatalog()
           .alterTable(
               NameIdentifier.of(
-                  Namespace.of(catalogName(), tablePath.getDatabaseName()),
+                  metalakeName(),
+                  catalogName(),
+                  tablePath.getDatabaseName(),
                   tablePath.getObjectName()),
               TableChange.rename(newTableName));
     } catch (NoSuchCatalogException e) {

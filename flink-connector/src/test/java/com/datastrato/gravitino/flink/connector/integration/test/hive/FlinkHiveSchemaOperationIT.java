@@ -12,23 +12,10 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.flink.table.api.ResultKind;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.types.Row;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class FlinkHiveSchemaOperationIT extends FlinkHiveCatalogBaseIT {
-
-  @BeforeAll
-  static void startUp() {
-    FlinkHiveCatalogBaseIT.startup();
-  }
-
-  @AfterAll
-  static void stop() {
-    FlinkHiveCatalogBaseIT.stop();
-  }
-
   @Test
   public void testCreateSchema() {
     doWithCatalog(
