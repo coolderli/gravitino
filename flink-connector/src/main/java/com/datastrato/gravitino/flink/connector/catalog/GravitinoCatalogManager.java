@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /** GravitinoCatalogManager is used to retrieve catalogs from Gravitino server. */
 public class GravitinoCatalogManager {
   private static final Logger LOG = LoggerFactory.getLogger(GravitinoCatalogManager.class);
-  private static volatile GravitinoCatalogManager gravitinoCatalogManager;
+  private static GravitinoCatalogManager gravitinoCatalogManager;
 
   private volatile boolean isClosed = false;
   private final String metalakeName;

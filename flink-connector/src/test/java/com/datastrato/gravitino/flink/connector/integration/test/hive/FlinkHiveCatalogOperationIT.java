@@ -193,7 +193,7 @@ public class FlinkHiveCatalogOperationIT extends FlinkHiveCatalogBaseIT {
     // list catalogs.
     String[] catalogs = tableEnv.listCatalogs();
     int size = catalogs.length;
-    Assertions.assertTrue(catalogs.length > 1, "Only have 2 catalog");
+    Assertions.assertTrue(catalogs.length > 1, "Only have some catalogs");
 
     // create a new catalog.
     String catalogName = "hive_catalog_in_gravitino";
