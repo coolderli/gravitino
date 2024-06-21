@@ -18,11 +18,14 @@ import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.api.Schema;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.internal.TableEnvironmentImpl;
+import org.apache.flink.table.types.DataType;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -158,18 +161,5 @@ public abstract class FlinkEnvIT extends AbstractIT {
   @FormatMethod
   protected TableResult sql(@FormatString String sql, Object... args) {
     return tableEnv.executeSql(String.format(sql, args));
-  }
-
-  protected void assertColumns(Column[] expected, Column[] actual) {
-    Assertions.assertEquals(expected.length, actual.length);
-    for (int i = 0; i < expected.length; i++) {
-      Assertions.assertEquals(expected[i].name(), actual[i].name());
-      Assertions.assertEquals(expected[i].comment(), actual[i].comment());
-      Assertions.assertEquals(
-          expected[i].dataType().simpleString(), actual[i].dataType().simpleString());
-      Assertions.assertEquals(expected[i].defaultValue(), actual[i].defaultValue());
-      Assertions.assertEquals(expected[i].autoIncrement(), actual[i].autoIncrement());
-      Assertions.assertEquals(expected[i].nullable(), actual[i].nullable());
-    }
   }
 }

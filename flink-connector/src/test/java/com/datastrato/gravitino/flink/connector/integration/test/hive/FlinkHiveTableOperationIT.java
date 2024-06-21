@@ -5,6 +5,8 @@
 
 package com.datastrato.gravitino.flink.connector.integration.test.hive;
 
+import static com.datastrato.gravitino.flink.connector.integration.test.utils.TestUtils.assertColumns;
+import static com.datastrato.gravitino.flink.connector.integration.test.utils.TestUtils.toFlinkPhysicalColumn;
 import static com.datastrato.gravitino.rel.expressions.transforms.Transforms.EMPTY_TRANSFORM;
 
 import com.datastrato.gravitino.Catalog;
@@ -24,7 +26,6 @@ import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.catalog.CatalogBaseTable;
 import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.catalog.ObjectPath;
-import org.apache.flink.table.catalog.ResolvedCatalogBaseTable;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
 import org.apache.flink.types.Row;
 import org.junit.jupiter.api.AfterAll;
@@ -379,8 +380,10 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
                       NameIdentifier.of(
                           metalake.name(), defaultHiveCatalog, defaultHiveSchema, tableName))
                   .properties();
-          Assertions.assertEquals(ImmutableMap.of("key2", "value2", "key", "value1"), properties);
-          result = sql("ALTER TABLE %s UNSET ('key2')", tableName);
+
+          Assertions.assertEquals("value1", properties.get("key"));
+          Assertions.assertEquals("value2", properties.get("key2"));
+          result = sql("ALTER TABLE %s RESET ('key2')", tableName);
           TestUtils.assertTableResult(result, ResultKind.SUCCESS);
 
           properties =
@@ -390,7 +393,8 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
                       NameIdentifier.of(
                           metalake.name(), defaultHiveCatalog, defaultHiveSchema, tableName))
                   .properties();
-          Assertions.assertEquals(ImmutableMap.of("key", "value1"), properties);
+          Assertions.assertEquals("value1", properties.get("key"));
+          Assertions.assertNull(properties.get("key2"));
         });
   }
 
@@ -507,9 +511,6 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
             Assertions.assertNotNull(table);
             Assertions.assertEquals(CatalogBaseTable.TableKind.TABLE, table.getTableKind());
             Assertions.assertEquals(comment, table.getComment());
-            Assertions.assertInstanceOf(ResolvedCatalogBaseTable.class, table);
-            CatalogTable catalogTable = (CatalogTable) table;
-            Assertions.assertFalse(catalogTable.isPartitioned());
 
             org.apache.flink.table.catalog.Column[] expected =
                 new org.apache.flink.table.catalog.Column[] {
@@ -527,7 +528,7 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
                   org.apache.flink.table.catalog.Column.physical(
                           "boolean_type", DataTypes.BOOLEAN())
                       .withComment("boolean_type"),
-                  org.apache.flink.table.catalog.Column.physical("byte_type", DataTypes.TINYINT())
+                  org.apache.flink.table.catalog.Column.physical("byte_type", DataTypes.BINARY(1))
                       .withComment("byte_type"),
                   org.apache.flink.table.catalog.Column.physical("binary_type", DataTypes.BYTES())
                       .withComment("binary_type"),
@@ -541,7 +542,7 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
                   org.apache.flink.table.catalog.Column.physical("date_type", DataTypes.DATE())
                       .withComment("date_type"),
                   org.apache.flink.table.catalog.Column.physical(
-                          "timestamp_type", DataTypes.TIMESTAMP(3))
+                          "timestamp_type", DataTypes.TIMESTAMP())
                       .withComment("timestamp_type"),
                   org.apache.flink.table.catalog.Column.physical(
                           "smallint_type", DataTypes.SMALLINT())
@@ -558,9 +559,12 @@ public class FlinkHiveTableOperationIT extends FlinkHiveCatalogBaseIT {
                           DataTypes.FIELD("k1", DataTypes.INT()),
                           DataTypes.FIELD("k2", DataTypes.STRING())))
                 };
-            ResolvedCatalogBaseTable<?> resolvedTable = (ResolvedCatalogBaseTable<?>) table;
-            Assertions.assertArrayEquals(
-                expected, resolvedTable.getResolvedSchema().getColumns().toArray());
+            org.apache.flink.table.catalog.Column[] actual =
+                toFlinkPhysicalColumn(table.getUnresolvedSchema().getColumns());
+            Assertions.assertArrayEquals(expected, actual);
+
+            CatalogTable catalogTable = (CatalogTable) table;
+            Assertions.assertFalse(catalogTable.isPartitioned());
           } catch (TableNotExistException e) {
             Assertions.fail(e);
           }

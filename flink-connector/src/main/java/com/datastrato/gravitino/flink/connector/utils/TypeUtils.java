@@ -138,9 +138,13 @@ public class TypeUtils {
       return DataTypes.BOOLEAN();
     } else if (gravitinoType instanceof Types.DateType) {
       return DataTypes.DATE();
-    } else if (gravitinoType instanceof Types.TimestampType
-        && ((Types.TimestampType) gravitinoType).hasTimeZone()) {
-      return DataTypes.TIMESTAMP_LTZ();
+    } else if (gravitinoType instanceof Types.TimestampType) {
+      Types.TimestampType timestampType = (Types.TimestampType) gravitinoType;
+      if (timestampType.hasTimeZone()) {
+        return DataTypes.TIMESTAMP_LTZ();
+      } else {
+        return DataTypes.TIMESTAMP();
+      }
     } else if (gravitinoType instanceof Types.ListType) {
       Types.ListType listType = (Types.ListType) gravitinoType;
       return DataTypes.ARRAY(toFlinkType(listType.elementType()));
@@ -151,7 +155,14 @@ public class TypeUtils {
       Types.StructType structType = (Types.StructType) gravitinoType;
       List<DataTypes.Field> fields =
           Arrays.stream(structType.fields())
-              .map(f -> DataTypes.FIELD(f.name(), toFlinkType(f.type()), f.comment()))
+              .map(
+                  f -> {
+                    if (f.comment() == null) {
+                      return DataTypes.FIELD(f.name(), toFlinkType(f.type()));
+                    } else {
+                      return DataTypes.FIELD(f.name(), toFlinkType(f.type()), f.comment());
+                    }
+                  })
               .collect(Collectors.toList());
       return DataTypes.ROW(fields);
     } else if (gravitinoType instanceof Types.NullType) {
