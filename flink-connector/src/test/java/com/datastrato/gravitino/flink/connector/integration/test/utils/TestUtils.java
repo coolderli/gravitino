@@ -7,9 +7,6 @@ package com.datastrato.gravitino.flink.connector.integration.test.utils;
 import com.datastrato.gravitino.rel.Column;
 import com.google.common.collect.Lists;
 import java.util.List;
-
-import com.google.errorprone.annotations.FormatMethod;
-import com.google.errorprone.annotations.FormatString;
 import org.apache.flink.table.api.ResultKind;
 import org.apache.flink.table.api.Schema;
 import org.apache.flink.table.api.TableResult;
@@ -42,7 +39,7 @@ public class TestUtils {
       Assertions.assertEquals(expected[i].name(), actual[i].name());
       Assertions.assertEquals(expected[i].comment(), actual[i].comment());
       Assertions.assertEquals(
-              expected[i].dataType().simpleString(), actual[i].dataType().simpleString());
+          expected[i].dataType().simpleString(), actual[i].dataType().simpleString());
       Assertions.assertEquals(expected[i].defaultValue(), actual[i].defaultValue());
       Assertions.assertEquals(expected[i].autoIncrement(), actual[i].autoIncrement());
       Assertions.assertEquals(expected[i].nullable(), actual[i].nullable());
@@ -50,17 +47,17 @@ public class TestUtils {
   }
 
   public static org.apache.flink.table.catalog.Column[] toFlinkPhysicalColumn(
-          List<Schema.UnresolvedColumn> unresolvedPhysicalColumns) {
+      List<Schema.UnresolvedColumn> unresolvedPhysicalColumns) {
     return unresolvedPhysicalColumns.stream()
-            .map(
-                    column -> {
-                      Schema.UnresolvedPhysicalColumn unresolvedPhysicalColumn =
-                              (Schema.UnresolvedPhysicalColumn) column;
-                      return org.apache.flink.table.catalog.Column.physical(
-                                      unresolvedPhysicalColumn.getName(),
-                                      (DataType) unresolvedPhysicalColumn.getDataType())
-                              .withComment(unresolvedPhysicalColumn.getComment().orElse(null));
-                    })
-            .toArray(org.apache.flink.table.catalog.Column[]::new);
+        .map(
+            column -> {
+              Schema.UnresolvedPhysicalColumn unresolvedPhysicalColumn =
+                  (Schema.UnresolvedPhysicalColumn) column;
+              return org.apache.flink.table.catalog.Column.physical(
+                      unresolvedPhysicalColumn.getName(),
+                      (DataType) unresolvedPhysicalColumn.getDataType())
+                  .withComment(unresolvedPhysicalColumn.getComment().orElse(null));
+            })
+        .toArray(org.apache.flink.table.catalog.Column[]::new);
   }
 }

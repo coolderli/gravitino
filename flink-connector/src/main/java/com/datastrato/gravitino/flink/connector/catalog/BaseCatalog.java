@@ -576,83 +576,83 @@ public abstract class BaseCatalog extends AbstractCatalog {
   }
 
   private List<TableChange> optionsChanges(
-          Map<String, String> currentOptions, Map<String, String> updatedOptions) {
+      Map<String, String> currentOptions, Map<String, String> updatedOptions) {
     List<TableChange> optionsChanges = com.google.common.collect.Lists.newArrayList();
     MapDifference<String, String> difference = Maps.difference(currentOptions, updatedOptions);
     difference
-            .entriesOnlyOnLeft()
-            .forEach((key, value) -> optionsChanges.add(TableChange.removeProperty(key)));
+        .entriesOnlyOnLeft()
+        .forEach((key, value) -> optionsChanges.add(TableChange.removeProperty(key)));
     difference
-            .entriesOnlyOnRight()
-            .forEach((key, value) -> optionsChanges.add(TableChange.setProperty(key, value)));
+        .entriesOnlyOnRight()
+        .forEach((key, value) -> optionsChanges.add(TableChange.setProperty(key, value)));
     difference
-            .entriesDiffering()
-            .forEach(
-                    (key, value) -> {
-                      optionsChanges.add(TableChange.setProperty(key, value.rightValue()));
-                    });
+        .entriesDiffering()
+        .forEach(
+            (key, value) -> {
+              optionsChanges.add(TableChange.setProperty(key, value.rightValue()));
+            });
     return optionsChanges;
   }
 
   private void removeProperty(
-          org.apache.flink.table.catalog.TableChange.ResetOption change, List<TableChange> changes) {
+      org.apache.flink.table.catalog.TableChange.ResetOption change, List<TableChange> changes) {
     changes.add(TableChange.removeProperty(change.getKey()));
   }
 
   private void setProperty(
-          org.apache.flink.table.catalog.TableChange.SetOption change, List<TableChange> changes) {
+      org.apache.flink.table.catalog.TableChange.SetOption change, List<TableChange> changes) {
     changes.add(TableChange.setProperty(change.getKey(), change.getValue()));
   }
 
   private void dropColumn(
-          org.apache.flink.table.catalog.TableChange.DropColumn change, List<TableChange> changes) {
+      org.apache.flink.table.catalog.TableChange.DropColumn change, List<TableChange> changes) {
     changes.add(TableChange.deleteColumn(new String[] {change.getColumnName()}, false));
   }
 
   private void addColumn(
-          org.apache.flink.table.catalog.TableChange.AddColumn change, List<TableChange> changes) {
+      org.apache.flink.table.catalog.TableChange.AddColumn change, List<TableChange> changes) {
     changes.add(
-            TableChange.addColumn(
-                    new String[] {change.getColumn().getName()},
-                    TypeUtils.toGravitinoType(change.getColumn().getDataType().getLogicalType()),
-                    change.getColumn().getComment().orElse(null),
-                    TableUtils.toGravitinoColumnPosition(change.getPosition())));
+        TableChange.addColumn(
+            new String[] {change.getColumn().getName()},
+            TypeUtils.toGravitinoType(change.getColumn().getDataType().getLogicalType()),
+            change.getColumn().getComment().orElse(null),
+            TableUtils.toGravitinoColumnPosition(change.getPosition())));
   }
 
   private void modifyColumn(
-          org.apache.flink.table.catalog.TableChange change, List<TableChange> changes) {
+      org.apache.flink.table.catalog.TableChange change, List<TableChange> changes) {
     if (change instanceof org.apache.flink.table.catalog.TableChange.ModifyColumnName) {
       org.apache.flink.table.catalog.TableChange.ModifyColumnName modifyColumnName =
-              (org.apache.flink.table.catalog.TableChange.ModifyColumnName) change;
+          (org.apache.flink.table.catalog.TableChange.ModifyColumnName) change;
       changes.add(
-              TableChange.renameColumn(
-                      new String[] {modifyColumnName.getOldColumnName()},
-                      modifyColumnName.getNewColumnName()));
+          TableChange.renameColumn(
+              new String[] {modifyColumnName.getOldColumnName()},
+              modifyColumnName.getNewColumnName()));
     } else if (change
-            instanceof org.apache.flink.table.catalog.TableChange.ModifyPhysicalColumnType) {
+        instanceof org.apache.flink.table.catalog.TableChange.ModifyPhysicalColumnType) {
       org.apache.flink.table.catalog.TableChange.ModifyPhysicalColumnType modifyColumnType =
-              (org.apache.flink.table.catalog.TableChange.ModifyPhysicalColumnType) change;
+          (org.apache.flink.table.catalog.TableChange.ModifyPhysicalColumnType) change;
       changes.add(
-              TableChange.updateColumnType(
-                      new String[] {modifyColumnType.getOldColumn().getName()},
-                      TypeUtils.toGravitinoType(modifyColumnType.getNewType().getLogicalType())));
+          TableChange.updateColumnType(
+              new String[] {modifyColumnType.getOldColumn().getName()},
+              TypeUtils.toGravitinoType(modifyColumnType.getNewType().getLogicalType())));
     } else if (change instanceof org.apache.flink.table.catalog.TableChange.ModifyColumnPosition) {
       org.apache.flink.table.catalog.TableChange.ModifyColumnPosition modifyColumnPosition =
-              (org.apache.flink.table.catalog.TableChange.ModifyColumnPosition) change;
+          (org.apache.flink.table.catalog.TableChange.ModifyColumnPosition) change;
       changes.add(
-              TableChange.updateColumnPosition(
-                      new String[] {modifyColumnPosition.getOldColumn().getName()},
-                      TableUtils.toGravitinoColumnPosition(modifyColumnPosition.getNewPosition())));
+          TableChange.updateColumnPosition(
+              new String[] {modifyColumnPosition.getOldColumn().getName()},
+              TableUtils.toGravitinoColumnPosition(modifyColumnPosition.getNewPosition())));
     } else if (change instanceof org.apache.flink.table.catalog.TableChange.ModifyColumnComment) {
       org.apache.flink.table.catalog.TableChange.ModifyColumnComment modifyColumnComment =
-              (org.apache.flink.table.catalog.TableChange.ModifyColumnComment) change;
+          (org.apache.flink.table.catalog.TableChange.ModifyColumnComment) change;
       changes.add(
-              TableChange.updateColumnComment(
-                      new String[] {modifyColumnComment.getOldColumn().getName()},
-                      modifyColumnComment.getNewComment()));
+          TableChange.updateColumnComment(
+              new String[] {modifyColumnComment.getOldColumn().getName()},
+              modifyColumnComment.getNewComment()));
     } else {
       throw new IllegalArgumentException(
-              String.format("Not support ModifyColumn : %s", change.getClass()));
+          String.format("Not support ModifyColumn : %s", change.getClass()));
     }
   }
 
