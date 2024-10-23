@@ -183,6 +183,7 @@ paimon-hive-catalog = { group = "org.apache.paimon", name = "paimon-hive-catalog
 paimon-s3 = { group = "org.apache.paimon", name = "paimon-s3", version.ref = "paimon" }
 paimon-oss = { group = "org.apache.paimon", name = "paimon-oss", version.ref = "paimon" }
 paimon-spark = { group = "org.apache.paimon", name = "paimon-spark", version.ref = "paimon" }
+paimon-flink = { group = "org.apache.paimon", name = "paimon-flink-common", version.ref = "paimon" }
 
 trino-spi= { group = "io.trino", name = "trino-spi", version.ref = "trino" }
 trino-testing= { group = "io.trino", name = "trino-testing", version.ref = "trino" }

@@ -46,6 +46,7 @@ dependencies {
   compileOnly("org.apache.flink:flink-connector-hive_$scalaVersion:$flinkVersion")
   compileOnly("org.apache.flink:flink-table-common:$flinkVersion")
   compileOnly("org.apache.flink:flink-table-api-java:$flinkVersion")
+  compileOnly(libs.paimon.flink)
 
   compileOnly(libs.hive2.exec) {
     artifact {
