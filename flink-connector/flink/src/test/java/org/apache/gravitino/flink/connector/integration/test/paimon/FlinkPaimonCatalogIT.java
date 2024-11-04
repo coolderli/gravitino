@@ -20,11 +20,20 @@ package org.apache.gravitino.flink.connector.integration.test.paimon;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.catalog.CatalogDescriptor;
+import org.apache.flink.table.catalog.CommonCatalogOptions;
+import org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions;
 import org.apache.gravitino.Catalog;
+import org.apache.gravitino.flink.connector.hive.GravitinoHiveCatalogFactoryOptions;
 import org.apache.gravitino.flink.connector.integration.test.FlinkCommonIT;
+import org.apache.gravitino.flink.connector.paimon.GravitinoPaimonCatalogFactoryOptions;
+import org.apache.paimon.options.CatalogOptions;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("gravitino-docker-test")
 public class FlinkPaimonCatalogIT extends FlinkCommonIT {
@@ -57,5 +66,22 @@ public class FlinkPaimonCatalogIT extends FlinkCommonIT {
             "paimon",
             null,
             ImmutableMap.of("uri", hiveMetastoreUri));
+  }
+
+  @Test
+  public void testCreateGravitinoPaimonTable() {
+    tableEnv.useCatalog(DEFAULT_CATALOG);
+    int nums = metalake.listCatalogs().length;
+
+    // create a new paimon catalog
+    String catalogName = "gravitino_paimon";
+    Configuration configuration = new Configuration();
+    configuration.set(
+            CommonCatalogOptions.CATALOG_TYPE, GravitinoPaimonCatalogFactoryOptions.IDENTIFIER);
+    configuration.set(CatalogOptions.METASTORE.key(), hiveMetastoreUri);
+
+    CatalogDescriptor catalogDescriptor = CatalogDescriptor.of(catalogName, configuration);
+    tableEnv.createCatalog(catalogName, catalogDescriptor);
+    Assertions.assertTrue(metalake.catalogExists(catalogName));
   }
 }

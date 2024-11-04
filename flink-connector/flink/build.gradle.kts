@@ -160,6 +160,8 @@ dependencies {
   testImplementation("org.apache.flink:flink-table-planner_$scalaVersion:$flinkVersion")
   testImplementation("org.apache.flink:flink-test-utils:$flinkVersion")
 
+  testImplementation(libs.paimon.flink)
+
   testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
