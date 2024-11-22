@@ -20,10 +20,16 @@
 package org.apache.gravitino.flink.connector.paimon;
 
 import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.factories.CatalogFactory;
+import org.apache.gravitino.catalog.lakehouse.paimon.PaimonCatalogPropertiesMetadata;
 import org.apache.paimon.flink.FlinkGenericCatalogFactory;
+
+import static org.apache.gravitino.flink.connector.paimon.GravitinoPaimonCatalogFactoryOptions.IDENTIFIER;
 
 public class GravitinoPaimonCatalogFactory implements CatalogFactory {
   private FlinkGenericCatalogFactory paimonCatalogFactory;
@@ -36,16 +42,22 @@ public class GravitinoPaimonCatalogFactory implements CatalogFactory {
 
   @Override
   public String factoryIdentifier() {
-    return paimonCatalogFactory.factoryIdentifier();
+    return IDENTIFIER;
   }
 
   @Override
   public Set<ConfigOption<?>> requiredOptions() {
-    return paimonCatalogFactory.requiredOptions();
+    return ImmutableSet.of(
+            ConfigOptions.key(PaimonCatalogPropertiesMetadata.URI).stringType().noDefaultValue(),
+            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_CATALOG_BACKEND).stringType().noDefaultValue(),
+            ConfigOptions.key(PaimonCatalogPropertiesMetadata.WAREHOUSE).stringType().noDefaultValue());
   }
 
   @Override
   public Set<ConfigOption<?>> optionalOptions() {
-    return paimonCatalogFactory.optionalOptions();
+    return ImmutableSet.of(
+            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_JDBC_USER).stringType().noDefaultValue(),
+            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_JDBC_PASSWORD).stringType().noDefaultValue()
+    );
   }
 }

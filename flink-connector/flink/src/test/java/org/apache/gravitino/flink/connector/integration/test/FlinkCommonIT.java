@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.ResultKind;
 import org.apache.flink.table.api.TableResult;
@@ -609,4 +611,8 @@ public abstract class FlinkCommonIT extends FlinkEnvIT {
         },
         true);
   }
+
+    protected ConfigOption<String> wrapConfigOption(String key) {
+        return ConfigOptions.key(key).stringType().noDefaultValue();
+    }
 }

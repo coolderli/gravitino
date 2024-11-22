@@ -33,7 +33,7 @@ public class GravitinoPaimonCatalog extends BaseCatalog {
   private FlinkGenericCatalog paimonCatalog;
 
   GravitinoPaimonCatalog(FlinkGenericCatalogFactory factory, CatalogFactory.Context context) {
-    super(context.getName(), context.getOptions().get(DEFAULT_DATABASE.key()));
+    super(context.getName(), context.getOptions().getOrDefault(DEFAULT_DATABASE.key(), DEFAULT_DATABASE.defaultValue()));
     this.paimonCatalog = factory.createCatalog(context);
   }
 

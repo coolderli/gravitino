@@ -41,6 +41,8 @@ dependencies {
   implementation(project(":catalogs:catalog-common"))
   implementation(libs.guava)
 
+  compileOnly(project(":catalogs:catalog-lakehouse-paimon"))
+  compileOnly(project(":core"))
   compileOnly(project(":clients:client-java-runtime", configuration = "shadow"))
 
   compileOnly("org.apache.flink:flink-connector-hive_$scalaVersion:$flinkVersion")
@@ -73,6 +75,7 @@ dependencies {
   testCompileOnly(libs.lombok)
 
   testImplementation(project(":api"))
+  testImplementation(project(":catalogs:catalog-lakehouse-paimon"))
   testImplementation(project(":clients:client-java"))
   testImplementation(project(":core"))
   testImplementation(project(":common"))
@@ -173,6 +176,7 @@ tasks.test {
   } else {
     dependsOn(tasks.jar)
     dependsOn(":catalogs:catalog-hive:jar")
+    dependsOn(":catalogs:catalog-lakehouse-paimon:jar")
   }
 }
 
