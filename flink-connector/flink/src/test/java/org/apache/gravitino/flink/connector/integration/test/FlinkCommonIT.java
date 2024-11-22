@@ -612,7 +612,7 @@ public abstract class FlinkCommonIT extends FlinkEnvIT {
         true);
   }
 
-    protected ConfigOption<String> wrapConfigOption(String key) {
-        return ConfigOptions.key(key).stringType().noDefaultValue();
-    }
+  protected ConfigOption<String> wrapConfigOption(String key) {
+    return ConfigOptions.key(key).stringType().noDefaultValue();
+  }
 }

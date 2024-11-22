@@ -26,14 +26,16 @@ import org.apache.flink.table.factories.CatalogFactory;
 import org.apache.gravitino.flink.connector.PartitionConverter;
 import org.apache.gravitino.flink.connector.PropertiesConverter;
 import org.apache.gravitino.flink.connector.catalog.BaseCatalog;
-import org.apache.paimon.flink.FlinkGenericCatalog;
-import org.apache.paimon.flink.FlinkGenericCatalogFactory;
+import org.apache.paimon.flink.FlinkCatalog;
+import org.apache.paimon.flink.FlinkCatalogFactory;
 
 public class GravitinoPaimonCatalog extends BaseCatalog {
-  private FlinkGenericCatalog paimonCatalog;
+  private FlinkCatalog paimonCatalog;
 
-  GravitinoPaimonCatalog(FlinkGenericCatalogFactory factory, CatalogFactory.Context context) {
-    super(context.getName(), context.getOptions().getOrDefault(DEFAULT_DATABASE.key(), DEFAULT_DATABASE.defaultValue()));
+  GravitinoPaimonCatalog(FlinkCatalogFactory factory, CatalogFactory.Context context) {
+    super(
+        context.getName(),
+        context.getOptions().getOrDefault(DEFAULT_DATABASE.key(), DEFAULT_DATABASE.defaultValue()));
     this.paimonCatalog = factory.createCatalog(context);
   }
 

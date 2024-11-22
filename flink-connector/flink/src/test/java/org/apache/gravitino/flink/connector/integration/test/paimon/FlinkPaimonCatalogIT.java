@@ -27,7 +27,6 @@ import org.apache.gravitino.Catalog;
 import org.apache.gravitino.catalog.lakehouse.paimon.PaimonCatalogPropertiesMetadata;
 import org.apache.gravitino.flink.connector.integration.test.FlinkCommonIT;
 import org.apache.gravitino.flink.connector.paimon.GravitinoPaimonCatalogFactoryOptions;
-import org.apache.paimon.options.CatalogOptions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,9 +63,13 @@ public class FlinkPaimonCatalogIT extends FlinkCommonIT {
             org.apache.gravitino.Catalog.Type.RELATIONAL,
             "lakehouse-paimon",
             null,
-            ImmutableMap.of("uri", hiveMetastoreUri,
-                    "warehouse", "hdfs://tmp",
-                    "catalog-backend", "hive"));
+            ImmutableMap.of(
+                "uri",
+                hiveMetastoreUri,
+                "warehouse",
+                warehouse + "/default_paimon",
+                "catalog-backend",
+                "hive"));
   }
 
   @Test
@@ -78,9 +81,12 @@ public class FlinkPaimonCatalogIT extends FlinkCommonIT {
     Configuration configuration = new Configuration();
     configuration.set(
         CommonCatalogOptions.CATALOG_TYPE, GravitinoPaimonCatalogFactoryOptions.IDENTIFIER);
-    configuration.setString(wrapConfigOption(PaimonCatalogPropertiesMetadata.GRAVITINO_CATALOG_BACKEND), "hive");
-    configuration.set(wrapConfigOption(PaimonCatalogPropertiesMetadata.URI),  hiveMetastoreUri);
-    configuration.set(wrapConfigOption(PaimonCatalogPropertiesMetadata.WAREHOUSE), "hdfs://tmp");
+    configuration.setString(
+        wrapConfigOption(PaimonCatalogPropertiesMetadata.GRAVITINO_CATALOG_BACKEND), "hive");
+    configuration.set(wrapConfigOption(PaimonCatalogPropertiesMetadata.URI), hiveMetastoreUri);
+    configuration.set(
+        wrapConfigOption(PaimonCatalogPropertiesMetadata.WAREHOUSE),
+        warehouse + "/gravitino_paimon");
     CatalogDescriptor catalogDescriptor = CatalogDescriptor.of(catalogName, configuration);
     tableEnv.createCatalog(catalogName, catalogDescriptor);
     Assertions.assertTrue(metalake.catalogExists(catalogName));

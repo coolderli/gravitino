@@ -19,24 +19,20 @@
 
 package org.apache.gravitino.flink.connector.paimon;
 
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ConfigOptions;
-import org.apache.flink.table.catalog.Catalog;
-import org.apache.flink.table.factories.CatalogFactory;
-import org.apache.gravitino.catalog.lakehouse.paimon.PaimonCatalogPropertiesMetadata;
-import org.apache.paimon.flink.FlinkGenericCatalogFactory;
-
 import static org.apache.gravitino.flink.connector.paimon.GravitinoPaimonCatalogFactoryOptions.IDENTIFIER;
 
+import java.util.Set;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.table.catalog.Catalog;
+import org.apache.flink.table.factories.CatalogFactory;
+import org.apache.paimon.flink.FlinkCatalogFactory;
+
 public class GravitinoPaimonCatalogFactory implements CatalogFactory {
-  private FlinkGenericCatalogFactory paimonCatalogFactory;
+  private FlinkCatalogFactory paimonCatalogFactory;
 
   @Override
   public Catalog createCatalog(Context context) {
-    this.paimonCatalogFactory = new FlinkGenericCatalogFactory();
+    this.paimonCatalogFactory = new FlinkCatalogFactory();
     return new GravitinoPaimonCatalog(paimonCatalogFactory, context);
   }
 
@@ -47,17 +43,11 @@ public class GravitinoPaimonCatalogFactory implements CatalogFactory {
 
   @Override
   public Set<ConfigOption<?>> requiredOptions() {
-    return ImmutableSet.of(
-            ConfigOptions.key(PaimonCatalogPropertiesMetadata.URI).stringType().noDefaultValue(),
-            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_CATALOG_BACKEND).stringType().noDefaultValue(),
-            ConfigOptions.key(PaimonCatalogPropertiesMetadata.WAREHOUSE).stringType().noDefaultValue());
+    return paimonCatalogFactory.requiredOptions();
   }
 
   @Override
   public Set<ConfigOption<?>> optionalOptions() {
-    return ImmutableSet.of(
-            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_JDBC_USER).stringType().noDefaultValue(),
-            ConfigOptions.key(PaimonCatalogPropertiesMetadata.GRAVITINO_JDBC_PASSWORD).stringType().noDefaultValue()
-    );
+    return paimonCatalogFactory.optionalOptions();
   }
 }
